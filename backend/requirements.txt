@@ -12,3 +12,6 @@ psycopg2-binary
 python-jose
 passlib[bcrypt]
 python-multipart
+pytest
+httpx
+pytest-asyncio

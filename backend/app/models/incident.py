@@ -1,9 +1,13 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """
-Incident model — CAP (Common Alerting Protocol) compliant.
+Incident model — CAP (Common Alerting Protocol) compliant with Day 4 extensions.
 
 Fields map directly to the CAP v1.2 standard:
   identifier, sender, sent_at, status, msg_type, scope, category.
+
+Day 4 additions:
+  reporter_id, type, latitude/longitude (floats for Haversine),
+  assigned_responder_id, priority.
 
 Geospatial columns use PostGIS GEOMETRY(POINT) for incident location
 and GEOMETRY(POLYGON) for future avoidance / hazard zones.
@@ -13,12 +17,17 @@ import enum
 
 from sqlalchemy import (
     Column,
+    Integer,
+    Float,
     String,
     Text,
     Enum,
     DateTime,
+    ForeignKey,
+    Index,
 )
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
 from geoalchemy2 import Geometry
 
 from .base import Base, SyncMixin
@@ -29,10 +38,12 @@ from .base import Base, SyncMixin
 # ---------------------------------------------------------------------------
 
 class IncidentStatus(str, enum.Enum):
-    """CAP <status> subset relevant to field operations."""
+    """CAP <status> subset relevant to field operations (Day 4 extended)."""
     PENDING = "Pending"
     ASSIGNED = "Assigned"
+    IN_PROGRESS = "InProgress"
     RESOLVED = "Resolved"
+    CANCELLED = "Cancelled"
 
 
 class CAPMsgType(str, enum.Enum):
@@ -74,6 +85,9 @@ class CAPCategory(str, enum.Enum):
 class Incident(SyncMixin, Base):
     """
     Core incident record, CAP-compliant with full geospatial support.
+
+    Day 4: Added reporter_id, type, latitude/longitude floats,
+    assigned_responder_id FK, and priority scoring.
     """
     __tablename__ = "incidents"
 
@@ -106,7 +120,7 @@ class Incident(SyncMixin, Base):
         nullable=False,
         default=IncidentStatus.PENDING,
         index=True,
-        comment="CAP <status> — Pending | Assigned | Resolved",
+        comment="CAP <status> — Pending | Assigned | InProgress | Resolved | Cancelled",
     )
     msg_type = Column(
         Enum(CAPMsgType, name="cap_msg_type", create_constraint=True),
@@ -131,6 +145,48 @@ class Incident(SyncMixin, Base):
     headline = Column(String(512), nullable=True, comment="Short human-readable headline")
     description = Column(Text, nullable=True, comment="Detailed incident narrative")
 
+    # --- Day 4: Reporter & Classification ----------------------------------
+    reporter_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=True,
+        index=True,
+        comment="FK to users.id — nullable for anonymous reports",
+    )
+    type = Column(
+        String(128),
+        nullable=True,
+        index=True,
+        comment="Incident type classification (e.g. flood, fire, earthquake)",
+    )
+    priority = Column(
+        Integer,
+        nullable=False,
+        default=0,
+        comment="Priority score — higher means more urgent",
+    )
+
+    # --- Day 4: Float coordinates for Haversine ----------------------------
+    latitude = Column(
+        Float,
+        nullable=True,
+        comment="Incident latitude (WGS 84) for Haversine distance calc",
+    )
+    longitude = Column(
+        Float,
+        nullable=True,
+        comment="Incident longitude (WGS 84) for Haversine distance calc",
+    )
+
+    # --- Day 4: Responder assignment ---------------------------------------
+    assigned_responder_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("responders.id"),
+        nullable=True,
+        index=True,
+        comment="FK to responders.id — assigned responder",
+    )
+
     # --- PostGIS geospatial columns ----------------------------------------
     location = Column(
         Geometry(geometry_type="POINT", srid=4326),
@@ -142,6 +198,20 @@ class Incident(SyncMixin, Base):
         Geometry(geometry_type="POLYGON", srid=4326),
         nullable=True,
         comment="Hazard / flood zone polygon for routing avoidance",
+    )
+
+    # --- ORM relationships -------------------------------------------------
+    assigned_responder = relationship(
+        "Responder",
+        backref="assigned_incidents",
+        foreign_keys=[assigned_responder_id],
+        lazy="selectin",
+    )
+
+    # --- Table-level indexes -----------------------------------------------
+    __table_args__ = (
+        Index("ix_incidents_lat_lon", "latitude", "longitude"),
+        Index("ix_incidents_created_at", "created_at"),
     )
 
     def __repr__(self) -> str:
