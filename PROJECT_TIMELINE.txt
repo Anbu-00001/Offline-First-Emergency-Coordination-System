@@ -162,3 +162,46 @@ Notes:
 - Foundation ready for frontend integration and offline UI sync (Day 5)
 
 ------------------------------------------------------------
+
+------------------------------------------------------------
+DAY 5:
+Date:
+Focus: Local Service Discovery using mDNS (Zeroconf)
+
+Tasks Completed:
+- Implemented local network service discovery using Python zeroconf (mDNS / DNS-SD)
+- Created mDNS advertiser module for server nodes
+- Server nodes now broadcast `_openrescue._tcp.local.` service on the LAN
+- Implemented discovery client that listens for available servers on the same Wi-Fi network
+- Added automatic resolution of discovered services to IP address and port
+- Implemented service metadata using TXT records (node_type, node_id, version)
+- Integrated discovery system with application startup lifecycle
+- Added graceful registration and deregistration during startup and shutdown
+- Implemented fallback-safe behavior if zeroconf is unavailable
+- Added unit and integration tests for discovery events and service resolution
+
+Technical Details:
+- Service discovery implemented using python-zeroconf library
+- Advertised service type: `_openrescue._tcp.local.`
+- Discovery handled via ServiceBrowser with event callbacks
+- In-memory registry tracks discovered servers with last-seen timestamps
+- Discovery events bridged into internal event bus
+- Clients can query available servers without needing IP configuration
+- TXT records limited to non-sensitive metadata to maintain security
+
+Files Created/Modified:
+- app/services/mdns_advertiser.py
+- app/services/mdns_discovery.py
+- app/api/routes/mdns_debug.py
+- app/core/config.py
+- tests/test_mdns.py
+- requirements.txt
+- PROJECT_TIMELINE.txt (this update)
+
+Notes:
+- Enables zero-configuration discovery of local servers on shared networks
+- Critical foundation for offline and disaster-network scenarios
+- Allows client devices to locate coordination servers automatically
+- Prepares infrastructure for peer-to-peer fallback and mesh-style discovery in future phases
+
+------------------------------------------------------------
