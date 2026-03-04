@@ -24,6 +24,18 @@ class Settings(BaseSettings):
     # DB URL override
     DATABASE_URL: str | None = None
 
+    # Node role (server | client)
+    NODE_ROLE: str = "server"
+    HTTP_PORT: int = 8000
+
+    # mDNS / zeroconf (Day 5)
+    ENABLE_MDNS: bool = False
+    MDNS_SERVICE_TYPE: str = "_openrescue._tcp.local."
+    MDNS_TTL_SECONDS: int = 120
+    MDNS_PUBLISH_TTL_REFRESH_SECONDS: int = 45
+    MDNS_SERVICE_NAME_PREFIX: str = "OpenRescue-Server"
+    MDNS_FALLBACK_HOSTS: str = ""  # comma-separated host:port for Docker/CI
+
     class Config:
         env_file = ".env"
 
