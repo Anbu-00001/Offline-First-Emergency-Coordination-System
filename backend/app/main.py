@@ -51,6 +51,7 @@ if settings.ENVIRONMENT in ("development", "testing"):
 # --- mDNS globals (set during startup, read by debug endpoint) --------------
 _mdns_advertiser = None
 _mdns_discovery = None
+_client_connector = None
 
 
 # --- Startup events ---------------------------------------------------------
@@ -90,14 +91,47 @@ async def startup_event() -> None:
                 )
                 asyncio.create_task(_mdns_discovery.start())
                 logger.info("mDNS discovery started (client mode)")
+
+                # Day 7 – auto-connect when CLIENT_MODE is enabled
+                if settings.CLIENT_MODE:
+                    asyncio.create_task(_auto_connect_client())
         except Exception:
             logger.exception("Failed to initialise mDNS – continuing without discovery")
 
 
+async def _auto_connect_client() -> None:
+    """Background task: discover server and connect client connector (Day 7)."""
+    global _client_connector
+    if _mdns_discovery is None:
+        return
+
+    server = await _mdns_discovery.discover_and_connect(timeout=15.0, max_retries=3)
+    if server is None:
+        logger.warning("CLIENT_MODE: no healthy server found — client not connected")
+        return
+
+    from app.services.client_connector import ClientConnector
+
+    _client_connector = ClientConnector(
+        server_ip=server["ip"],
+        server_port=server["port"],
+    )
+    connected = await _client_connector.connect_to_server()
+    if connected:
+        logger.info("CLIENT_MODE: connected to %s:%d", server["ip"], server["port"])
+    else:
+        logger.error("CLIENT_MODE: failed to connect to %s:%d", server["ip"], server["port"])
+
+
 @app.on_event("shutdown")
 async def shutdown_event() -> None:
-    """Gracefully stop mDNS services."""
-    global _mdns_advertiser, _mdns_discovery
+    """Gracefully stop mDNS services and client connector."""
+    global _mdns_advertiser, _mdns_discovery, _client_connector
+
+    if _client_connector:
+        await _client_connector.disconnect()
+        _client_connector = None
+        logger.info("Client connector stopped")
 
     if _mdns_advertiser:
         await _mdns_advertiser.stop()

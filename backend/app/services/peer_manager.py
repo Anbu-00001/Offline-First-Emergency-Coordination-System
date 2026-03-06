@@ -78,8 +78,9 @@ class PeerManager:
             self._ws_user[websocket] = user_id
 
         logger.info(
-            "Peer WS connected: user_id=%s  (total connections=%d)",
+            "[peer_manager] WS connected: user_id=%s  ephemeral=%s  total_connections=%d",
             user_id,
+            bool(ephemeral_pair),
             sum(len(s) for s in self._connections.values()),
         )
         return user_id
@@ -92,7 +93,11 @@ class PeerManager:
                 self._connections[uid].discard(websocket)
                 if not self._connections[uid]:
                     del self._connections[uid]
-        logger.info("Peer WS disconnected")
+        logger.info(
+            "[peer_manager] WS disconnected: user_id=%s  remaining=%d",
+            uid,
+            sum(len(s) for s in self._connections.values()),
+        )
 
     # ------------------------------------------------------------------
     # Delivery helpers
@@ -210,7 +215,10 @@ class PeerManager:
                 )
 
         db.commit()
-        logger.info("Delivered %d queued messages to user_id=%s", count, user_id)
+        logger.info(
+            "[peer_manager] Delivered %d queued messages to user_id=%s (pending=%d)",
+            count, user_id, len(messages) - count,
+        )
         return count
 
 

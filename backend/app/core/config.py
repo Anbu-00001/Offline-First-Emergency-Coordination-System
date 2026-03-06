@@ -36,6 +36,9 @@ class Settings(BaseSettings):
     MDNS_SERVICE_NAME_PREFIX: str = "OpenRescue-Server"
     MDNS_FALLBACK_HOSTS: str = ""  # comma-separated host:port for Docker/CI
 
+    # Day 7 – client-mode auto-connect
+    CLIENT_MODE: bool = False
+
     class Config:
         env_file = ".env"
 

@@ -142,6 +142,62 @@ class MDNSDiscovery:
         )
         return [s.to_dict() for s in servers]
 
+    async def discover_and_connect(
+        self,
+        timeout: float = 30.0,
+        max_retries: int = 5,
+    ) -> Optional[Dict[str, Any]]:
+        """Discover a server via mDNS and validate its health endpoint.
+
+        Combines :meth:`await_server` with an HTTP health check against
+        ``/health``.  Retries with exponential backoff on failure.
+
+        Returns the server dict (with ``ip`` and ``port``) on success,
+        or ``None`` if no healthy server is found within *max_retries*.
+        """
+        backoff = 1.0
+        max_backoff = 30.0
+
+        for attempt in range(1, max_retries + 1):
+            server = await self.await_server(timeout=timeout)
+            if server is None:
+                logger.warning(
+                    "discover_and_connect: no server found (attempt %d/%d)",
+                    attempt, max_retries,
+                )
+                await asyncio.sleep(backoff)
+                backoff = min(backoff * 2, max_backoff)
+                continue
+
+            # Validate health
+            health_url = f"http://{server['ip']}:{server['port']}/health"
+            try:
+                import httpx
+                async with httpx.AsyncClient(timeout=5.0) as client:
+                    resp = await client.get(health_url)
+                    if resp.status_code == 200:
+                        logger.info(
+                            "discover_and_connect: server healthy at %s:%d",
+                            server["ip"], server["port"],
+                        )
+                        return server
+                    logger.warning(
+                        "discover_and_connect: health check returned %d",
+                        resp.status_code,
+                    )
+            except Exception as exc:
+                logger.warning(
+                    "discover_and_connect: health check failed (%s), "
+                    "retrying in %.1fs",
+                    exc, backoff,
+                )
+
+            await asyncio.sleep(backoff)
+            backoff = min(backoff * 2, max_backoff)
+
+        logger.error("discover_and_connect: exhausted retries")
+        return None
+
     async def await_server(self, timeout: float = 30.0) -> Optional[Dict[str, Any]]:
         """Block until at least one server is found, or *timeout* expires.
 

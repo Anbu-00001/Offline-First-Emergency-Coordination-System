@@ -15,10 +15,13 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    pas = str(plain_password)[:72]
+    return pwd_context.verify(pas, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    # Explicitly stringify and slice to bypass passlib bcrypt bug on python 3.12+
+    pas = str(password)[:72]
+    return pwd_context.hash(pas)
 
 def create_access_token(subject: str | Any, expires_delta: Optional[timedelta] = None) -> str:
     if expires_delta:
