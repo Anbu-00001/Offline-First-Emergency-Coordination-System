@@ -45,3 +45,21 @@ python -m pytest tests/test_mdns.py -v
 Tests use `unittest.mock.patch` to replace `zeroconf.Zeroconf`,
 `zeroconf.ServiceBrowser`, and `zeroconf.ServiceInfo`.  See
 `tests/test_mdns.py` for examples.
+
+## Peer Messaging & Pairing Tokens (Day 6)
+
+### Ephemeral Pairing Flow
+
+1. **Create a token:** `POST /pairing/request` with `{"pin_length": 4, "ttl_minutes": 5}` — returns a UUID `token` and numeric `pin`.
+2. **Share out-of-band:** Verbally share the PIN with the remote device (tokens are never in mDNS TXT records).
+3. **Connect:** Remote device opens `ws://<server>/ws/peer?pair_token=<token>` — the token is consumed on first use.
+4. **Exchange messages:** Both sides send JSON `MessageIn` payloads; the server persists, delivers (or queues), and returns receipts.
+
+Authenticated users connect via `ws://<server>/ws/peer?token=<JWT>` instead.
+
+### Running Day 6 tests
+
+```bash
+cd backend
+DATABASE_URL=sqlite:///./test_day6.db python3 -m pytest tests/test_peer_messaging.py -v
+```

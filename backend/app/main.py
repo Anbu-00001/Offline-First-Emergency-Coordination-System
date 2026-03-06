@@ -8,8 +8,10 @@ from pydantic import BaseModel
 from app.core.config import settings
 from app.api.routes import auth, protected, incidents, sync, ws
 from app.api.routes import mdns_debug
+from app.api.routes import peer_ws, pairing, sync_messages
 from app.services.cap_parser import parse_cap_xml
 from app.services.notification_queue import consume_forever
+from app.services.message_worker import message_worker_loop
 from app.api.routes.ws import register_ws_events
 
 logger = logging.getLogger(__name__)
@@ -37,6 +39,11 @@ app.include_router(incidents.router, prefix="/incidents", tags=["incidents"])
 app.include_router(sync.router, prefix="/sync", tags=["sync"])
 app.include_router(ws.router, prefix="/ws", tags=["websocket"])
 
+# --- Day 6 routers ----------------------------------------------------------
+app.include_router(peer_ws.router, prefix="/ws", tags=["peer-messaging"])
+app.include_router(pairing.router, prefix="/pairing", tags=["pairing"])
+app.include_router(sync_messages.router, prefix="/sync", tags=["sync-messages"])
+
 # --- Day 5 debug router (development only) ----------------------------------
 if settings.ENVIRONMENT in ("development", "testing"):
     app.include_router(mdns_debug.router, tags=["mdns-debug"])
@@ -55,6 +62,9 @@ async def startup_event() -> None:
     # Day 4 – notification queue & WebSocket bridge
     asyncio.create_task(consume_forever())
     register_ws_events()
+
+    # Day 6 – message redelivery background worker
+    asyncio.create_task(message_worker_loop())
 
     # Day 5 – mDNS advertisement / discovery
     if settings.ENABLE_MDNS:

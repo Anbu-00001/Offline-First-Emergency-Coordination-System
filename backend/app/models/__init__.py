@@ -9,3 +9,5 @@ from .base import Base, SyncMixin  # noqa: F401
 from .incident import Incident, IncidentStatus, CAPMsgType, CAPScope, CAPCategory  # noqa: F401
 from .responder import Responder, ResponderStatus  # noqa: F401
 from .report import Report  # noqa: F401
+from .message import Message  # noqa: F401
+from .pairing import PairingToken  # noqa: F401
