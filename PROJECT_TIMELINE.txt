@@ -253,3 +253,28 @@ Notes:
 - Prepares infrastructure for mesh networking and decentralized communication in future phases
 
 ------------------------------------------------------------
+
+------------------------------------------------------------
+DAY 7:
+Date:
+Focus: Week-1 Integration, Local Discovery Validation & WebSocket Demo
+
+Tasks Completed:
+- Integrated mDNS advertiser with backend so server is discoverable on local Wi-Fi
+- Implemented demo flow and documentation validating two clients locate the server and exchange messages via WebSocket
+- Created architecture diagram (Mermaid) and demo documentation explaining the mDNS→WebSocket flow and store-and-forward behavior
+- Collected evidence files: API docs HTML, uvicorn/mdns log tails, simple client demo logs
+- Created docs/week1_demo.md explaining the architecture and client communication
+- Ensured DB migrations were applied (or create_tables() was executed) and fallbacked to local DB when container host 'db' was not resolvable during local dev
+
+Files added:
+- docs/week1_architecture.mmd
+- docs/week1_architecture.png (if render available)
+- docs/week1_demo.md
+- docs/screenshots/* (api docs, mdns, websocket logs if available)
+- PROJECT_TIMELINE.txt (this update)
+
+Notes:
+- The WebSocket endpoint may require authentication (JWT or pairing tokens). For demo, the recommended flow is: register → login → obtain JWT → connect to ws://<server>/ws/peer?token=<jwt> and exchange messages.
+- If screenshots are not rendered in this environment, the saved HTML and logs are valid evidence and can be converted to PNG on a local machine.
+------------------------------------------------------------

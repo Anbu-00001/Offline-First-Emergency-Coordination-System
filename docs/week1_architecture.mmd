@@ -1,0 +1,38 @@
+%% Week 1 architecture (OpenRescue) - Mermaid flowchart
+flowchart LR
+  subgraph Server["Server Node (Local)"]
+    direction TB
+    API[FastAPI Backend<br/>(REST & WebSockets)]
+    DB[(Database)]
+    MDNS_ADV[mDNS Advertiser]
+    WS_MANAGER[WebSocket Manager / PeerManager]
+    NOTIF[Notification Queue / Event Bus]
+  end
+
+  subgraph Clients["Client Devices (same Wi-Fi)"]
+    direction TB
+    ClientA[Client A<br/>(mobile/browser/app)]
+    ClientB[Client B<br/>(mobile/browser/app)]
+    LOCAL_UI[Local UI / Service Worker]
+  end
+
+  %% interactions
+  MDNS_ADV -->|advertises _openrescue._tcp.local._| Network
+  ClientA -->|mDNS discover| Network
+  ClientB -->|mDNS discover| Network
+  Network -->|resolve IP:PORT| ClientA
+  Network -->|resolve IP:PORT| ClientB
+
+  ClientA -->|HTTP: /health, /auth/login| API
+  ClientB -->|HTTP: /health| API
+
+  ClientA -.->|WebSocket (ws://server/ws/peer?token=...)| API
+  ClientB -.->|WebSocket (ws://server/ws/peer?token=...)| API
+
+  API -->|persist message| DB
+  API -->|publish event| NOTIF
+  NOTIF -->|broadcast| WS_MANAGER
+  WS_MANAGER -->|deliver| ClientB
+  WS_MANAGER -->|deliver| ClientA
+
+  click API href "/docs" "Open API Docs"
