@@ -205,3 +205,51 @@ Notes:
 - Prepares infrastructure for peer-to-peer fallback and mesh-style discovery in future phases
 
 ------------------------------------------------------------
+
+------------------------------------------------------------
+DAY 6:
+Date:
+Focus: Local Peer Messaging & WebSocket Communication
+
+Tasks Completed:
+- Implemented local peer messaging system over WebSockets
+- Added dedicated peer WebSocket endpoint allowing two devices to exchange text messages
+- Integrated messaging with previously implemented mDNS discovery system
+- Enabled clients to discover the local server automatically and connect without knowing its IP address
+- Implemented message persistence and store-and-forward delivery logic
+- Added message idempotency using unique message IDs to prevent duplicates
+- Implemented delivery acknowledgements and queued message handling for offline recipients
+- Created optional ephemeral pairing tokens to allow temporary device-to-device messaging sessions
+- Added message synchronization endpoint for batched offline uploads
+- Added tests covering WebSocket connections, message delivery, duplicate protection, and pairing flows
+
+Technical Details:
+- WebSocket endpoint `/ws/peer` supports authenticated users via JWT
+- Optional pairing-token authentication enables ad-hoc device pairing
+- Messages stored with unique UUID message IDs for idempotent processing
+- Lamport-style counters used for lightweight ordering across peers
+- Store-and-forward logic ensures messages are delivered when recipients reconnect
+- Internal event bus used to trigger message delivery events
+- Delivery receipts returned to senders confirming queued or delivered state
+- Background worker attempts redelivery of queued messages
+- Designed to work fully offline on a local network
+
+Files Created/Modified:
+- app/models/message.py
+- app/models/pairing.py
+- app/schemas/message.py
+- app/services/peer_manager.py
+- app/services/message_worker.py
+- app/api/routes/peer_ws.py
+- app/api/routes/pairing.py
+- app/api/routes/sync_messages.py
+- tests/test_peer_messaging.py
+- PROJECT_TIMELINE.txt (this update)
+
+Notes:
+- Enables devices on the same local network to communicate via the discovered server
+- Establishes the first peer-to-peer communication layer in the system
+- Works even when internet connectivity is unavailable
+- Prepares infrastructure for mesh networking and decentralized communication in future phases
+
+------------------------------------------------------------
