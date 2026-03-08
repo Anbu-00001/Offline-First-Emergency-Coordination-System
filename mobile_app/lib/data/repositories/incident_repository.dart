@@ -1,30 +1,33 @@
 import 'package:drift/drift.dart';
 import 'dart:convert';
-import '../../models/models.dart' as models;
-import '../database.dart';
+import '../../models/models.dart' as domain;
+import '../database.dart' as db;
 import '../../core/api_client.dart';
+import '../mappers/incident_mapper.dart';
 
 class IncidentRepository {
-  final AppDatabase _db;
+  final db.AppDatabase _db;
   final ApiClient _apiClient;
 
   IncidentRepository(this._db, this._apiClient);
 
-  Stream<List<Incident>> watchIncidents() {
+  Stream<List<domain.Incident>> watchIncidents() {
     return (_db.select(_db.incidents)..where((t) => t.deleted_flag.equals(false)))
-        .watch();
+        .watch()
+        .map((rows) => rows.map((r) => incidentFromDb(r)).toList());
   }
 
-  Future<Incident> getIncident(String id) async {
-    return await (_db.select(_db.incidents)..where((t) => t.id.equals(id))).getSingle();
+  Future<domain.Incident> getIncident(String id) async {
+    final row = await (_db.select(_db.incidents)..where((t) => t.id.equals(id))).getSingle();
+    return incidentFromDb(row);
   }
 
-  Future<void> createIncident(models.IncidentCreateDto dto) async {
+  Future<void> createIncident(domain.IncidentCreateDto dto) async {
     final localDocId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
     
     await _db.transaction(() async {
       await _db.into(_db.incidents).insert(
-        IncidentsCompanion.insert(
+        db.IncidentsCompanion.insert(
           id: localDocId,
           reporter_id: 'local_user', // This might be pulled from auth/context
           type: dto.type,
@@ -39,7 +42,7 @@ class IncidentRepository {
       );
 
       await _db.into(_db.syncQueue).insert(
-        SyncQueueCompanion.insert(
+        db.SyncQueueCompanion.insert(
           entity_type: 'Incident',
           entity_id: localDocId,
           operation: 'CREATE',
@@ -55,7 +58,7 @@ class IncidentRepository {
     final pendingChanges = await (_db.select(_db.syncQueue)..where((t) => t.status.equals('queued'))).get();
     if (pendingChanges.isEmpty) return;
 
-    final changes = pendingChanges.map((q) => models.LocalChange(
+    final changes = pendingChanges.map((q) => domain.LocalChange(
       entity_type: q.entity_type,
       entity_id: q.entity_id,
       operation: q.operation,
@@ -71,7 +74,7 @@ class IncidentRepository {
         // Mark as sent
         for (var q in pendingChanges) {
           await (_db.update(_db.syncQueue)..where((t) => t.id.equals(q.id)))
-              .write(const SyncQueueCompanion(status: Value('sent')));
+              .write(const db.SyncQueueCompanion(status: Value('sent')));
         }
         
         // Update local DB with server definitive source of truth
@@ -88,22 +91,9 @@ class IncidentRepository {
     }
   }
 
-  Future<void> _upsertIncidentFromServer(models.Incident serverIncident) async {
+  Future<void> _upsertIncidentFromServer(domain.Incident serverIncident) async {
     await _db.into(_db.incidents).insertOnConflictUpdate(
-      IncidentsCompanion.insert(
-        id: serverIncident.id,
-        reporter_id: serverIncident.reporter_id,
-        type: serverIncident.type,
-        lat: serverIncident.lat,
-        lon: serverIncident.lon,
-        assigned_responder_id: Value(serverIncident.assigned_responder_id),
-        priority: serverIncident.priority,
-        status_enum: serverIncident.status,
-        client_id: serverIncident.client_id,
-        sequence_num: serverIncident.sequence_num,
-        deleted_flag: Value(serverIncident.deleted),
-        updated_at: serverIncident.updated_at,
-      ),
+      incidentToDbCompanion(serverIncident),
     );
   }
 }
