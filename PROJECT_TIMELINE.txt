@@ -278,3 +278,46 @@ Notes:
 - The WebSocket endpoint may require authentication (JWT or pairing tokens). For demo, the recommended flow is: register → login → obtain JWT → connect to ws://<server>/ws/peer?token=<jwt> and exchange messages.
 - If screenshots are not rendered in this environment, the saved HTML and logs are valid evidence and can be converted to PNG on a local machine.
 ------------------------------------------------------------
+
+DAY 8:
+Date:
+Focus: Mobile Client Foundation (Flutter)
+
+Summary:
+Implemented the first operational version of the OpenRescue mobile client using Flutter.
+
+Key Achievements:
+
+* Created Flutter project under `mobile_app/`.
+* Established clean architecture separation:
+
+  * data layer (Drift database)
+  * domain models
+  * repository layer
+  * UI layer.
+* Implemented API client to communicate with FastAPI backend.
+* Implemented WebSocket service for real-time messaging.
+* Implemented local database initialization using Drift for offline storage.
+* Added mDNS discovery client scaffold for locating the local server.
+* Added incident repository with proper domain ↔ database mapping.
+* Fixed type mismatch between database Incident entity and domain Incident model using mapper layer.
+* Verified Flutter build and emulator deployment.
+* Confirmed Flutter app launches successfully on Android emulator.
+
+Dev Environment Work:
+
+* Configured adb reverse for emulator → backend connectivity.
+* Added helper scripts for development environment setup.
+* Confirmed backend reachable via:
+  http://127.0.0.1:8000
+
+Architecture Status:
+The system now supports:
+Client (Flutter) → Repository → API/WebSocket → FastAPI Backend.
+
+This establishes the base required for the upcoming geospatial engine integration.
+
+Next Step:
+Week 2 Day-9: Integrate MapLibre map engine and render incident markers on the map.
+
+---
