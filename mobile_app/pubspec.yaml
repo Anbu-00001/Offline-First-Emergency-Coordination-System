@@ -41,7 +41,9 @@ dependencies:
   drift: ^2.32.0
   sqlite3_flutter_libs: ^0.6.0+eol
   path_provider: ^2.1.5
-  maplibre_gl: ^0.25.0
+  maplibre_gl: ^0.25.0  # Temporarily disabled for tile debugging
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
   multicast_dns: ^0.3.3
   provider: ^6.1.5+1
   json_annotation: ^4.11.0

@@ -1,0 +1,21 @@
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 93.0.0 (97.0.0 available)
+  analyzer 10.0.1 (11.0.0 available)
++ dart_earcut 1.2.0
++ flutter_map 7.0.2 (8.2.2 available)
++ intl 0.20.2
++ latlong2 0.9.1
++ lists 1.0.1
++ logger 2.6.2
+  meta 1.17.0 (1.18.1 available)
++ mgrs_dart 2.0.0 (3.0.0 available)
++ polylabel 1.0.1
++ proj4dart 2.1.0 (3.0.0 available)
+  sqlite3 3.1.6 (3.1.7 available)
++ unicode 0.3.1 (1.1.9 available)
+  win32 5.15.0 (6.0.0 available)
++ wkt_parser 2.0.0
+Changed 11 dependencies!
+9 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.

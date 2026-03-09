@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:maplibre_gl/maplibre_gl.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 import 'dart:async';
@@ -9,6 +10,9 @@ import '../../data/repositories/incident_repository.dart';
 import '../../models/models.dart' as models;
 import '../messaging/messaging_screen.dart';
 import 'map_service.dart';
+
+// Temporarily disabled for tile debugging:
+// import 'package:maplibre_gl/maplibre_gl.dart';
 
 /// Represents a cluster of incidents at a specific location.
 class _IncidentCluster {
@@ -31,14 +35,13 @@ class MapScreen extends StatefulWidget {
 }
 
 class _MapScreenState extends State<MapScreen> {
-  MapLibreMapController? _mapController;
   List<models.Incident> _incidents = [];
   double _currentZoom = 2.0;
-  bool _mapReady = false;
   String? _tileUrl;
   bool _tileUrlResolved = false;
   bool _tilesLoading = true;
   Timer? _tileLoadTimer;
+  final MapController _mapController = MapController();
 
   /// Cluster radius in degrees — adjusts with zoom level.
   double get _clusterRadiusDeg {
@@ -60,6 +63,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void dispose() {
     _tileLoadTimer?.cancel();
+    _mapController.dispose();
     super.dispose();
   }
 
@@ -78,53 +82,12 @@ class _MapScreenState extends State<MapScreen> {
       // Start a 3-second timer to show loading banner if tiles still haven't loaded
       _tileLoadTimer = Timer(const Duration(seconds: 3), () {
         if (mounted && _tilesLoading) {
-          setState(() {}); // Trigger rebuild to show the banner
+          setState(() {
+            // Mark tiles as loaded since flutter_map handles this differently
+            _tilesLoading = false;
+          });
         }
       });
-    }
-  }
-
-  String _buildStyleJson(String tileUrl) {
-    final mapService = context.read<MapService>();
-    return mapService.buildStyleJson(tileUrl);
-  }
-
-  void _onMapCreated(MapLibreMapController controller) {
-    debugPrint('MapScreen: Map created');
-    _mapController = controller;
-
-    _mapController!.onSymbolTapped.add((Symbol symbol) {
-      final incidentId = symbol.data?['id'] as String?;
-      final clusterIds = symbol.data?['cluster_ids'] as String?;
-      if (clusterIds != null) {
-        _showClusterDetails(clusterIds.split(','));
-      } else if (incidentId != null) {
-        _showIncidentDetails(incidentId);
-      }
-    });
-  }
-
-  void _onStyleLoaded() {
-    debugPrint('MapScreen: Style loaded successfully');
-    _mapReady = true;
-    if (mounted) {
-      setState(() {
-        _tilesLoading = false;
-      });
-    }
-    _tileLoadTimer?.cancel();
-    _refreshMarkers();
-  }
-
-  void _onCameraIdle() {
-    if (_mapController == null) return;
-    final cameraPos = _mapController!.cameraPosition;
-    if (cameraPos != null) {
-      final newZoom = cameraPos.zoom;
-      if ((newZoom - _currentZoom).abs() > 0.5) {
-        _currentZoom = newZoom;
-        _refreshMarkers();
-      }
     }
   }
 
@@ -165,43 +128,55 @@ class _MapScreenState extends State<MapScreen> {
     return clusters;
   }
 
-  Future<void> _refreshMarkers() async {
-    if (_mapController == null || !_mapReady) return;
-
-    await _mapController!.clearSymbols();
-
+  /// Build flutter_map Marker widgets from clustered incidents.
+  List<Marker> _buildMarkers() {
     final clusters = _clusterIncidents(_incidents);
+    final markers = <Marker>[];
 
     for (var cluster in clusters) {
       if (cluster.isSingle) {
-        await _mapController!.addSymbol(
-          SymbolOptions(
-            geometry: LatLng(cluster.lat, cluster.lon),
-            iconImage: 'marker-15',
-            iconSize: 2.0,
-            textField: cluster.first.type,
-            textOffset: const Offset(0, 1.5),
-            textSize: 12,
+        markers.add(Marker(
+          point: LatLng(cluster.lat, cluster.lon),
+          width: 40,
+          height: 40,
+          child: GestureDetector(
+            onTap: () => _showIncidentDetails(cluster.first.id),
+            child: Icon(
+              _incidentIcon(cluster.first.type),
+              color: Colors.red,
+              size: 32,
+            ),
           ),
-          {'id': cluster.first.id},
-        );
+        ));
       } else {
-        await _mapController!.addSymbol(
-          SymbolOptions(
-            geometry: LatLng(cluster.lat, cluster.lon),
-            iconImage: 'marker-15',
-            iconSize: 2.5,
-            textField: '${cluster.count} incidents',
-            textOffset: const Offset(0, 1.5),
-            textSize: 14,
-            textColor: '#FF0000',
+        markers.add(Marker(
+          point: LatLng(cluster.lat, cluster.lon),
+          width: 50,
+          height: 50,
+          child: GestureDetector(
+            onTap: () => _showClusterDetails(
+                cluster.incidents.map((i) => i.id).toList()),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.red.withAlpha(200),
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.white, width: 2),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                '${cluster.count}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
+            ),
           ),
-          {
-            'cluster_ids': cluster.incidents.map((i) => i.id).join(','),
-          },
-        );
+        ));
       }
     }
+    return markers;
   }
 
   void _showIncidentDetails(String id) async {
@@ -255,9 +230,8 @@ class _MapScreenState extends State<MapScreen> {
                   }),
                   _buildActionButton(Icons.navigation, 'Navigate', () {
                     Navigator.pop(ctx);
-                    _mapController?.animateCamera(
-                      CameraUpdate.newLatLngZoom(
-                          LatLng(incident.lat, incident.lon), 15),
+                    _mapController.move(
+                      LatLng(incident.lat, incident.lon), 15,
                     );
                   }),
                 ],
@@ -373,14 +347,8 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  void _onMapLongPress(Point<double> point, LatLng coordinates) {
-    _openCreateIncidentForm(lat: coordinates.latitude, lon: coordinates.longitude);
-  }
-
   void _centerOnMyLocation() {
-    _mapController?.animateCamera(
-      CameraUpdate.newLatLngZoom(const LatLng(0, 0), 2),
-    );
+    _mapController.move(const LatLng(0, 0), 2);
   }
 
   /// Show debug panel with tile diagnostics.
@@ -523,27 +491,64 @@ class _MapScreenState extends State<MapScreen> {
                   builder: (context, streamSnapshot) {
                     if (streamSnapshot.hasData) {
                       _incidents = streamSnapshot.data!;
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _refreshMarkers();
-                      });
                     }
 
-                    return MapLibreMap(
-                      styleString: _buildStyleJson(_tileUrl!),
-                      onMapCreated: _onMapCreated,
-                      onStyleLoadedCallback: _onStyleLoaded,
-                      initialCameraPosition: const CameraPosition(
-                        target: LatLng(0, 0),
-                        zoom: 2.0,
+                    debugPrint('MapScreen: Building FlutterMap with tile URL: $_tileUrl');
+
+                    return FlutterMap(
+                      mapController: _mapController,
+                      options: MapOptions(
+                        initialCenter: const LatLng(0, 0),
+                        initialZoom: 2.0,
+                        onPositionChanged: (position, hasGesture) {
+                          final newZoom = position.zoom;
+                          if ((newZoom - _currentZoom).abs() > 0.5) {
+                            _currentZoom = newZoom;
+                            // Markers rebuild automatically via setState
+                            if (mounted) setState(() {});
+                          }
+                        },
+                        onLongPress: (tapPos, latLng) {
+                          _openCreateIncidentForm(
+                            lat: latLng.latitude,
+                            lon: latLng.longitude,
+                          );
+                        },
                       ),
-                      myLocationEnabled: false,
-                      onMapLongClick: _onMapLongPress,
-                      onCameraIdle: _onCameraIdle,
-                      trackCameraPosition: true,
+                      children: [
+                        TileLayer(
+                          urlTemplate: _tileUrl!,
+                          userAgentPackageName: 'org.openrescue.app',
+                          maxZoom: 19,
+                          tileBuilder: (context, tileWidget, tile) {
+                            // Tile loaded successfully
+                            return tileWidget;
+                          },
+                        ),
+                        MarkerLayer(
+                          markers: _buildMarkers(),
+                        ),
+                      ],
                     );
                   },
                 ),
-                // Loading overlay banner
+                // Visual tile source overlay (bottom-left)
+                Positioned(
+                  bottom: 8,
+                  left: 8,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withAlpha(160),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'Tile source: ${_tileUrl != null && _tileUrl!.length > 40 ? '${_tileUrl!.substring(0, 40)}...' : _tileUrl}',
+                      style: const TextStyle(color: Colors.white, fontSize: 10, fontFamily: 'monospace'),
+                    ),
+                  ),
+                ),
+                // Loading banner
                 if (_tilesLoading && _tileUrlResolved)
                   Positioned(
                     top: 0,
@@ -672,6 +677,9 @@ class _CreateIncidentFormState extends State<_CreateIncidentForm> {
             label: const Text('Save Incident'),
             onPressed: () async {
               final repo = context.read<IncidentRepository>();
+              final nav = Navigator.of(context);
+              final scaffold = ScaffoldMessenger.of(context);
+
               final lat = widget.initialLat ??
                   double.tryParse(_latController.text) ??
                   (Random().nextDouble() * 180) - 90;
@@ -690,11 +698,9 @@ class _CreateIncidentFormState extends State<_CreateIncidentForm> {
               );
               await repo.createIncident(dto);
 
-              if (context.mounted) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Incident created & queued for sync')));
-              }
+              nav.pop();
+              scaffold.showSnackBar(
+                  const SnackBar(content: Text('Incident created & queued for sync')));
 
               repo.pushLocalChanges();
             },
