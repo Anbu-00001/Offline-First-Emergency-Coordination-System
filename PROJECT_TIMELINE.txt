@@ -321,3 +321,101 @@ Next Step:
 Week 2 Day-9: Integrate MapLibre map engine and render incident markers on the map.
 
 ---
+
+------------------------------------------------------------
+DAY 9:
+Date:
+Focus: Map Rendering, Tile Architecture, and Offline Map Preparation
+
+Summary:
+Implemented the mobile map rendering layer for the OpenRescue mobile client. 
+The system now displays OpenStreetMap tiles, incident markers, and provides a 
+debug panel to inspect tile resolution and offline tile behavior.
+
+Major Work Completed:
+
+1. Map Rendering Engine
+- Integrated flutter_map for raster tile rendering
+- Replaced MapLibre GL Native due to OpenGL limitations on Linux development environments
+- Ensured cross-platform compatibility using Skia rendering
+
+2. Tile Architecture Implementation
+Implemented a three-tier tile resolution system:
+
+Tile Resolver Priority:
+1. Local MBTiles tile server (offline mode)
+2. Backend tile server
+3. OpenStreetMap remote tiles (fallback)
+
+This architecture ensures that the system continues functioning even if
+external internet connectivity is unavailable.
+
+3. Tile Layer Configuration
+Configured FlutterMap TileLayer with:
+- NetworkTileProvider
+- Valid user agent
+- Correct zoom constraints
+
+Tile URL:
+https://tile.openstreetmap.org/{z}/{x}/{y}.png
+
+4. Incident Marker Layer
+Connected the IncidentRepository stream to the map UI.
+
+Flow:
+IncidentRepository.watchIncidents()
+        ↓
+MapScreen
+        ↓
+MarkerLayer
+        ↓
+Interactive incident markers
+
+5. Debug Diagnostics
+Implemented an in-app Map Debug Panel that displays:
+- active tile URL
+- MBTiles detection
+- tile server state
+- tile request counters
+- tile resolution logs
+
+This panel helps diagnose tile failures and offline tile availability.
+
+6. Offline Map Preparation
+Prepared the architecture required for future MBTiles offline tile loading.
+
+MBTiles Location (planned):
+/data/user/0/<package>/app_flutter/tiles/dev.mbtiles
+
+7. Map Interaction
+Implemented:
+- long-press to create incident with coordinates
+- marker interaction
+- bottom sheet UI actions (view / assign / navigate)
+
+Architecture Established:
+
+Mobile Map Stack
+
+Flutter UI
+     ↓
+FlutterMap Renderer
+     ↓
+TileLayer
+     ↓
+MapService.resolveTileUrl()
+     ↓
+MBTiles → Backend → OSM Fallback
+     ↓
+IncidentRepository
+     ↓
+Drift Offline Database
+
+Deliverables:
+- fully functional mobile map screen
+- OSM tile rendering
+- incident marker visualization
+- tile diagnostics panel
+- offline tile architecture ready for MBTiles integration
+
+------------------------------------------------------------
