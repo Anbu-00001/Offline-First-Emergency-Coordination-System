@@ -6,6 +6,8 @@ import 'dart:math';
 import 'dart:async';
 
 import '../../core/map/map_diagnostics.dart';
+import '../../core/map/tile_fetch_diagnostic.dart';
+import '../../core/network/http_logging_override.dart';
 import '../../data/repositories/incident_repository.dart';
 import '../../models/models.dart' as models;
 import '../messaging/messaging_screen.dart';
@@ -355,6 +357,7 @@ class _MapScreenState extends State<MapScreen> {
   void _showDebugPanel() {
     final summary = MapDiagnostics.getSummary();
     final logs = MapDiagnostics.getLogEntries();
+    final httpLogs = LoggingHttpOverrides.getLogs();
 
     showModalBottomSheet(
       context: context,
@@ -404,7 +407,7 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       )),
                   const Divider(height: 24),
-                  const Text('Logs',
+                  const Text('Tile Diagnostics Logs',
                       style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   if (logs.isEmpty)
@@ -412,6 +415,19 @@ class _MapScreenState extends State<MapScreen> {
                         style: TextStyle(color: Colors.grey, fontSize: 12))
                   else
                     ...logs.reversed.take(20).map((log) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 1),
+                          child: Text(log,
+                              style: const TextStyle(fontFamily: 'monospace', fontSize: 10)),
+                        )),
+                  const Divider(height: 24),
+                  const Text('HTTP Overrides Logs (Last 20)',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  if (httpLogs.isEmpty)
+                    const Text('No HTTP logs caught',
+                        style: TextStyle(color: Colors.grey, fontSize: 12))
+                  else
+                    ...httpLogs.reversed.take(20).map((log) => Padding(
                           padding: const EdgeInsets.symmetric(vertical: 1),
                           child: Text(log,
                               style: const TextStyle(fontFamily: 'monospace', fontSize: 10)),
@@ -548,42 +564,49 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                   ),
                 ),
-                // Loading banner
-                if (_tilesLoading && _tileUrlResolved)
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      color: Colors.orange.withAlpha(220),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        children: [
-                          const SizedBox(
-                            width: 16, height: 16,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white,
+                  // Loading banner
+                  if (_tilesLoading && _tileUrlResolved)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Container(
+                        color: Colors.orange.withAlpha(220),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          children: [
+                            const SizedBox(
+                              width: 16, height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2, color: Colors.white,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              'Tiles loading… (source: ${context.read<MapService>().fallbackMode})',
-                              style: const TextStyle(color: Colors.white, fontSize: 12),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                'Tiles loading… (source: ${context.read<MapService>().fallbackMode})',
+                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                              ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.bug_report, color: Colors.white, size: 18),
-                            onPressed: _showDebugPanel,
-                            padding: EdgeInsets.zero,
-                            constraints: const BoxConstraints(),
-                          ),
-                        ],
+                            IconButton(
+                              icon: const Icon(Icons.bug_report, color: Colors.white, size: 18),
+                              onPressed: _showDebugPanel,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-              ],
-            ),
+                  // Deep Diagnostic Tile Fetcher
+                  if (_tileUrlResolved)
+                    Positioned(
+                      top: _tilesLoading ? 60 : 16,
+                      right: 16,
+                      child: SampleTileWidget(urlTemplate: _tileUrl!),
+                    ),
+                ],
+              ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _openCreateIncidentForm(),
         child: const Icon(Icons.add_location_alt),
