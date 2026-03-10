@@ -1,0 +1,15 @@
+=========================================
+dev_backend_proxy.sh run at 20260308_111658
+=========================================
+Checking backend health at http://127.0.0.1:8000/health...
+Backend is already running: {"status":"ok","service":"OpenRescue"}
+Setting up adb reverse tcp:8000 tcp:8000...
+WARN: adb reverse failed (is emulator running? Check adb_reverse.txt).
+Checking backend health from emulator side (via adb shell)...
+WARN: Emulator-side check failed (curl missing on emulator, or backend unreachable). Check adb_emulator_health.txt.
+=========================================
+Summary:
+ - Backend Health Before: {"status":"ok","service":"OpenRescue"}
+ - adb reverse: FAILED
+ - Emulator health check: FAILED
+=========================================

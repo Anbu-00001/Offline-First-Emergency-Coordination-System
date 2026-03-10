@@ -1,0 +1,43 @@
+Analyzing mobile_app...                                         
+
+warning • The ability to import 'BytesBuilder' indirectly is deprecated • lib/core/map/tile_fetch_diagnostic.dart:47:28 • deprecated_export_use
+   info • The variable name 'reporter_id' isn't a lowerCamelCase identifier • lib/data/database.dart:11:18 • non_constant_identifier_names
+   info • The variable name 'assigned_responder_id' isn't a lowerCamelCase identifier • lib/data/database.dart:15:18 • non_constant_identifier_names
+   info • The variable name 'status_enum' isn't a lowerCamelCase identifier • lib/data/database.dart:17:18 • non_constant_identifier_names
+   info • The variable name 'client_id' isn't a lowerCamelCase identifier • lib/data/database.dart:18:18 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/data/database.dart:19:17 • non_constant_identifier_names
+   info • The variable name 'deleted_flag' isn't a lowerCamelCase identifier • lib/data/database.dart:20:18 • non_constant_identifier_names
+   info • The variable name 'updated_at' isn't a lowerCamelCase identifier • lib/data/database.dart:21:22 • non_constant_identifier_names
+   info • The variable name 'entity_type' isn't a lowerCamelCase identifier • lib/data/database.dart:29:18 • non_constant_identifier_names
+   info • The variable name 'entity_id' isn't a lowerCamelCase identifier • lib/data/database.dart:30:18 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/data/database.dart:33:17 • non_constant_identifier_names
+   info • Don't invoke 'print' in production code • lib/data/repositories/incident_repository.dart:90:7 • avoid_print
+   info • Angle brackets will be interpreted as HTML • lib/features/map/map_service.dart:21:48 • unintended_html_in_doc_comment
+   info • The variable name 'access_token' isn't a lowerCamelCase identifier • lib/models/models.dart:18:16 • non_constant_identifier_names
+   info • The variable name 'token_type' isn't a lowerCamelCase identifier • lib/models/models.dart:19:16 • non_constant_identifier_names
+   info • The variable name 'access_token' isn't a lowerCamelCase identifier • lib/models/models.dart:21:31 • non_constant_identifier_names
+   info • The variable name 'token_type' isn't a lowerCamelCase identifier • lib/models/models.dart:21:59 • non_constant_identifier_names
+   info • The variable name 'reporter_id' isn't a lowerCamelCase identifier • lib/models/models.dart:30:16 • non_constant_identifier_names
+   info • The variable name 'assigned_responder_id' isn't a lowerCamelCase identifier • lib/models/models.dart:34:17 • non_constant_identifier_names
+   info • The variable name 'client_id' isn't a lowerCamelCase identifier • lib/models/models.dart:37:16 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/models/models.dart:38:13 • non_constant_identifier_names
+   info • The variable name 'updated_at' isn't a lowerCamelCase identifier • lib/models/models.dart:40:18 • non_constant_identifier_names
+   info • The variable name 'reporter_id' isn't a lowerCamelCase identifier • lib/models/models.dart:47:19 • non_constant_identifier_names
+   info • The variable name 'assigned_responder_id' isn't a lowerCamelCase identifier • lib/models/models.dart:51:10 • non_constant_identifier_names
+   info • The variable name 'client_id' isn't a lowerCamelCase identifier • lib/models/models.dart:54:19 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/models/models.dart:55:19 • non_constant_identifier_names
+   info • The variable name 'updated_at' isn't a lowerCamelCase identifier • lib/models/models.dart:57:19 • non_constant_identifier_names
+   info • The variable name 'client_id' isn't a lowerCamelCase identifier • lib/models/models.dart:72:16 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/models/models.dart:73:13 • non_constant_identifier_names
+   info • The variable name 'client_id' isn't a lowerCamelCase identifier • lib/models/models.dart:82:19 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/models/models.dart:83:19 • non_constant_identifier_names
+   info • The variable name 'entity_type' isn't a lowerCamelCase identifier • lib/models/models.dart:93:16 • non_constant_identifier_names
+   info • The variable name 'entity_id' isn't a lowerCamelCase identifier • lib/models/models.dart:94:16 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/models/models.dart:97:13 • non_constant_identifier_names
+   info • The variable name 'entity_type' isn't a lowerCamelCase identifier • lib/models/models.dart:101:19 • non_constant_identifier_names
+   info • The variable name 'entity_id' isn't a lowerCamelCase identifier • lib/models/models.dart:102:19 • non_constant_identifier_names
+   info • The variable name 'sequence_num' isn't a lowerCamelCase identifier • lib/models/models.dart:105:19 • non_constant_identifier_names
+   info • The variable name 'current_server_sequence' isn't a lowerCamelCase identifier • lib/models/models.dart:118:13 • non_constant_identifier_names
+   info • The variable name 'current_server_sequence' isn't a lowerCamelCase identifier • lib/models/models.dart:124:19 • non_constant_identifier_names
+
+39 issues found. (ran in 6.0s)

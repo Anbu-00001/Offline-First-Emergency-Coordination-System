@@ -1,0 +1,8 @@
+build-tools
+cmdline-tools
+emulator
+licenses
+platforms
+platform-tools
+sources
+system-images

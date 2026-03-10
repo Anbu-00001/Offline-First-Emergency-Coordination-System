@@ -1,0 +1,1 @@
+activated venv: /home/anbu/25_class/Sem_4/FOSS/.venv_openrescue/bin/activate

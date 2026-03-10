@@ -1,0 +1,49 @@
+00:00 +11: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics logConfig stores values correctly
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+MapDiagnostics: MBTiles path: /path/to/dev.mbtiles
+MapDiagnostics: MBTiles detected: false
+MapDiagnostics: Tile server started: false
+MapDiagnostics: Fallback mode: OSM hard fallback
+MapDiagnostics: ============================
+00:00 +12: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics recordTileSuccess increments counter
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: test
+MapDiagnostics: MBTiles path: not set
+MapDiagnostics: MBTiles detected: false
+MapDiagnostics: Tile server started: false
+MapDiagnostics: Fallback mode: test
+MapDiagnostics: ============================
+00:00 +13: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics recordTileFailure increments counter and logs error
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: test
+MapDiagnostics: MBTiles path: not set
+MapDiagnostics: MBTiles detected: false
+MapDiagnostics: Tile server started: false
+MapDiagnostics: Fallback mode: test
+MapDiagnostics: ============================
+MapDiagnostics: Tile request failed: Network error
+MapDiagnostics: Tile request failed: Timeout
+00:00 +14: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics reset clears all state
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: test
+MapDiagnostics: MBTiles path: /path
+MapDiagnostics: MBTiles detected: true
+MapDiagnostics: Tile server started: true
+MapDiagnostics: Tile server port: 12345
+MapDiagnostics: Fallback mode: MBTiles
+MapDiagnostics: ============================
+00:00 +15: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics MBTiles path detection format
+00:00 +16: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics local tile URL format
+00:01 +20: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile formats URL correctly and fetches bytes
+Diagnostic: Fetching tile http://127.0.0.1:36531/tiles/3/4/3.png
+00:01 +21: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile formats URL correctly and fetches bytes
+Diagnostic: Tile fetch complete - Status: 200, Bytes: 1
+00:01 +22: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile returns 404 for missing tile
+Diagnostic: Fetching tile http://127.0.0.1:34871/missing/3/4/3.png
+Diagnostic: Tile fetch complete - Status: 404, Bytes: 0
+00:01 +23: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile handles invalid URL gracefully
+Diagnostic: Fetching tile http://invalid-url-that-does-not-exist.local
+00:01 +24: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile handles invalid URL gracefully
+00:01 +25: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile handles invalid URL gracefully
+Diagnostic: Tile fetch failed - Error: SocketException: HTTP connection timed out after 0:00:10.000000, host: invalid-url-that-does-not-exist.local, port: 80

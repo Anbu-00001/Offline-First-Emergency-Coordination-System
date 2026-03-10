@@ -1,0 +1,4 @@
+[Listener] Connecting to ws://127.0.0.1:8000/ws/peer?pair_token=5abc1f9f-3d66-4f15-9dc8-0713e3dd10e9
+[Listener] Connected. Waiting for message...
+[Listener] Received event: message
+[Listener] YAY! Got message: Hello from Sender (demo) from None

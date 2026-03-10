@@ -1,0 +1,8 @@
+?? artifacts/
+?? backend/=0.27.0
+?? backend/demo.db
+?? backend/test_day6.db
+?? backend/test_day7.db
+?? scripts/run_docs_creator.sh
+?? scripts/week2_full_check.sh
+?? week1_demo_artifacts.tar.gz

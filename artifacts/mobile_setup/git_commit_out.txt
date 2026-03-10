@@ -1,0 +1,4 @@
+[main 4bd49c0] fix(mobile): map DB Incident -> domain model, return domain types from repository
+ 3 files changed, 127 insertions(+), 27 deletions(-)
+ create mode 100644 mobile_app/lib/data/mappers/incident_mapper.dart
+ create mode 100644 mobile_app/test/incident_mapper_test.dart

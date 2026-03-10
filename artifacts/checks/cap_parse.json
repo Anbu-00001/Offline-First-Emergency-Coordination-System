@@ -1,0 +1,1 @@
+{"status":"success","data":{"identifier":"123","sender":"test","sent":"2023-01-01T00:00:00Z","status":"Actual","msgType":"Alert","scope":"Public","info.category":"Geo","info.event":"Earthquake","info.urgency":"Immediate","info.severity":"Severe","info.certainty":"Observed"}}

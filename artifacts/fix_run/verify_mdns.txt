@@ -1,0 +1,2 @@
+<stdin>:10: FutureWarning: <__main__.L object at 0x706018cc2d80> has no update_service method. Provide one (it can be empty if you don't care about the updates), it'll become mandatory.
+[]

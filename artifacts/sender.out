@@ -1,0 +1,6 @@
+[Sender] Connecting to ws://127.0.0.1:8000/ws/peer?pair_token=cc16b9cf-3cb7-48c1-877d-367ee9b30edd
+[Sender] Connected. Sending message...
+[Sender] Message sent. Waiting for receipt...
+[Sender] Received event: message
+[Sender] Received event: receipt
+[Sender] Got receipt: {'event': 'receipt', 'message_id': '6ac6a4f8-1127-40c6-a5b2-225026ebd95f', 'status': 'broadcast'}

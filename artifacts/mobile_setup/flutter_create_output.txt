@@ -1,0 +1,18 @@
+Creating project mobile_app...
+Resolving dependencies in `mobile_app`...
+Downloading packages...
+Got dependencies in `mobile_app`.
+Wrote 131 files.
+
+All done!
+You can find general documentation for Flutter at: https://docs.flutter.dev/
+Detailed API documentation is available at: https://api.flutter.dev/
+If you prefer video documentation, consider: https://www.youtube.com/c/flutterdev
+
+In order to run your application, type:
+
+  $ cd mobile_app
+  $ flutter run
+
+Your application code is in mobile_app/lib/main.dart.
+

@@ -1,0 +1,10 @@
+00:00 +0: loading /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mdns_test.dart
+00:00 +0: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/api_client_test.dart: listIncidents calls correct path
+00:01 +1: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/incident_mapper_test.dart: incidentFromDb maps correctly
+00:01 +2: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/incident_mapper_test.dart: incidentToDbCompanion maps correctly
+00:01 +3: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mdns_test.dart: MDnsDiscovery stub behavior
+00:02 +4: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/ws_service_test.dart: ws_service connects and receives messages
+WS Connected
+WS Closed
+WS: Reconnecting in 1000ms (attempt 1)
+00:02 +5: All tests passed!

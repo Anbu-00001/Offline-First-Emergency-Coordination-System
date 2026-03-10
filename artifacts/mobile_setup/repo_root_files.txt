@@ -1,0 +1,12 @@
+artifacts
+backend
+discovery
+docker-compose.yml
+docs
+fast_check.sh
+LICENSE
+mobile_app
+PROJECT_TIMELINE.txt
+README.md
+scripts
+week1_demo_artifacts.tar.gz

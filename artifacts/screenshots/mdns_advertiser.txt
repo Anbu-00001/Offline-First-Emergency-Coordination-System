@@ -1,0 +1,5 @@
+Terminal - mDNS Advertiser
+$ python discovery/main.py
+
+Starting OpenRescue mDNS discovery on 192.168.1.105:8000...
+Error starting discovery service: 

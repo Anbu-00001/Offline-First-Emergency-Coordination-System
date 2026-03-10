@@ -1,0 +1,1 @@
+scripts/week2_full_check.sh: line 27: emulator: command not found

@@ -1,0 +1,1 @@
+PASS - Connected and received: {"event":"message","message_id":"961e0d2c-be48-4a28-8f58-0969497f18c1","sender_id":null,"content":"ping check","lamport":2,"sent_at":"2023-01-01T00:00:00"}

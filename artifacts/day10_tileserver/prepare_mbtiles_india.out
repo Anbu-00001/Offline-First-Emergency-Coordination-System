@@ -1,0 +1,27 @@
+=== OpenRescue: Prepare India MBTiles ===
+Data directory: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/docker/tileserver/data
+✓ Directory ensured: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/docker/tileserver/data
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ No MBTILES_URL environment variable set.
+ To use the tileserver you need an MBTiles file.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Option A — Download a pre-built MBTiles:
+  export MBTILES_URL='https://your-url/india.mbtiles'
+  bash scripts/prepare_mbtiles_india.sh
+
+Option B — Generate from OpenMapTiles (advanced):
+  1. Clone https://github.com/openmaptiles/openmaptiles
+  2. Edit .env to set BBOX=68.11,6.55,97.40,35.67 (India)
+  3. Run: make generate-bbox-file && make download area=india
+  4. Run: make import-data && make generate-tiles-pg
+  5. Copy the output .mbtiles to /home/anbu/25_class/Sem_4/FOSS/OpenRescue/docker/tileserver/data/india.mbtiles
+
+Option C — Use Protomaps or similar:
+  Visit https://protomaps.com/downloads/protomaps
+  Create an India extract and download the .pmtiles/.mbtiles
+  Place it at: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/docker/tileserver/data/india.mbtiles
+
+Once placed, run: bash scripts/start_tileserver.sh
+

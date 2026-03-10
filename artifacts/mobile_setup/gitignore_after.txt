@@ -1,0 +1,63 @@
+# ==========================================
+# OpenRescue .gitignore
+# ==========================================
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# --- Virtual Environments ---
+venv/
+.venv/
+env/
+.env
+.env.*
+!.env.example
+
+# --- Docker ---
+# Local named volumes (if bind-mounted accidentally)
+pgdata/
+redisdata/
+
+# --- IDEs ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# --- OS ---
+.DS_Store
+Thumbs.db
+
+# --- Alembic ---
+# Never commit connection strings baked into local overrides
+alembic/local.ini
+
+# --- Node (future-proofing) ---
+node_modules/
+package-lock.json
+yarn.lock
+
+# --- Misc ---
+*.log
+*.pid
+*.seed
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# Flutter mobile app
+mobile_app/build/
+mobile_app/.dart_tool/
+mobile_app/.idea/

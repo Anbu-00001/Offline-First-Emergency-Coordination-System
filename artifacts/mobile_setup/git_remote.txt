@@ -1,0 +1,2 @@
+origin	https://github.com/Anbu-00001/-Offline-First-Emergency-Coordination-System.git (fetch)
+origin	https://github.com/Anbu-00001/-Offline-First-Emergency-Coordination-System.git (push)
