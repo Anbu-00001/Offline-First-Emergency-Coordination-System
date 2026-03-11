@@ -6,9 +6,13 @@ import 'core/auth_service.dart';
 import 'core/api_client.dart';
 import 'core/ws_service.dart';
 import 'data/database.dart';
+import 'data/db/prefetch_database.dart';
 import 'data/repositories/incident_repository.dart';
+import 'data/tiles_repository.dart';
 import 'features/map/map_screen.dart';
 import 'features/map/map_service.dart';
+import 'features/prefetch/prefetch_controller.dart';
+import 'services/tile_prefetch_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +29,15 @@ void main() async {
   final wsService = WsService(baseUrl, authService, db);
   final mapService = MapService();
 
+  // 3. Prefetch system
+  final prefetchDb = PrefetchDatabase();
+  final tilesRepo = TilesRepository(prefetchDb);
+  final prefetchService = TilePrefetchService(
+    repo: tilesRepo,
+    mapService: mapService,
+  );
+  final prefetchController = PrefetchController(prefetchService);
+
   runApp(
     MultiProvider(
       providers: [
@@ -35,6 +48,11 @@ void main() async {
         Provider<IncidentRepository>.value(value: incidentRepo),
         Provider<WsService>.value(value: wsService),
         Provider<MapService>.value(value: mapService),
+        Provider<PrefetchDatabase>.value(value: prefetchDb),
+        Provider<TilesRepository>.value(value: tilesRepo),
+        Provider<TilePrefetchService>.value(value: prefetchService),
+        ChangeNotifierProvider<PrefetchController>.value(
+            value: prefetchController),
       ],
       child: const OpenRescueApp(),
     ),

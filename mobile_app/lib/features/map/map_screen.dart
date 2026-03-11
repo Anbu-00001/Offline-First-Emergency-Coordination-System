@@ -11,6 +11,7 @@ import '../../core/network/http_logging_override.dart';
 import '../../data/repositories/incident_repository.dart';
 import '../../models/models.dart' as models;
 import '../messaging/messaging_screen.dart';
+import '../prefetch/prefetch_screen.dart';
 import 'map_service.dart';
 
 // Temporarily disabled for tile debugging:
@@ -458,6 +459,22 @@ class _MapScreenState extends State<MapScreen> {
                           child: Text(log,
                               style: const TextStyle(fontFamily: 'monospace', fontSize: 10)),
                         )),
+                  const Divider(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PrefetchScreen()),
+                        );
+                      },
+                      icon: const Icon(Icons.download_for_offline),
+                      label: const Text('Tile Prefetch'),
+                    ),
+                  ),
                 ],
               ),
             );

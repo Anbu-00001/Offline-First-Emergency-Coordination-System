@@ -582,3 +582,98 @@ Notes:
 - OSRM fully operational once PBF is processed; scripts handle the full flow
 
 ------------------------------------------------------------
+
+------------------------------------------------------------
+DAY 11:
+Date:
+Focus: Tile Prefetch Engine (5km Radius Caching)
+
+Summary:
+Implemented a robust tile prefetching system for the OpenRescue mobile app.
+Responders can download map tiles for offline use around a specified location.
+The system features persistent SQL-based queue management, async concurrent
+downloads, exponential backoff with jitter, pause/resume/cancel, and a
+dedicated UI screen accessible from the Map Debug Panel.
+
+Major Work Completed:
+
+1. Core Tile Math (tile_math.dart)
+- Pure functions: lonToTileX, latToTileY, metersPerTile, tilesInRadius
+- Deterministic tile set computation for any lat/lon, radius, zoom range
+- Safety guardrail: kMaxTilesPerJob = 5000 tiles per job
+
+2. Prefetch Database (Separate Drift DB)
+- Dedicated SQLite database: openrescue_prefetch.sqlite
+- PrefetchJobs table: job metadata, status tracking, progress
+- PrefetchTiles table: individual tile records with retry tracking
+- In-memory constructor for unit testing
+
+3. Tiles Repository
+- CRUD operations for jobs and tiles
+- Batch enqueue, next-batch dequeue, status transitions
+- Progress increment, failed tile requeue, status counts
+
+4. Tile Prefetch Service
+- Async download engine with 4 concurrent downloads (configurable)
+- Exponential backoff: baseDelay × 2^(attempt-1) with ±20% jitter
+- Atomic writes (temp file + rename) to prevent partial files
+- Disk-existence check to skip already-cached tiles
+- Per-job pause/resume/cancel via flag checks
+- Stream-based progress updates via Drift watch queries
+- resumePendingJobs() for background fetch integration
+
+5. Prefetch UI
+- PrefetchController (ChangeNotifier) wrapping the service
+- PrefetchScreen with radius/zoom config, tile estimation,
+  start/pause/resume/cancel, progress bar, status badges
+- Accessible from Map Debug Panel via "Tile Prefetch" button
+
+6. Tests
+- tile_math_test.dart: 22 tests covering tile X/Y conversion,
+  metersPerTile scaling, tilesRadius, tilesInRadius, totalTilesForJob
+- prefetch_queue_test.dart: in-memory Drift tests for job lifecycle,
+  tile enqueue/dequeue, status transitions, progress tracking, cleanup
+
+7. Provider Integration
+- PrefetchDatabase, TilesRepository, TilePrefetchService,
+  PrefetchController added to main.dart provider tree
+- MapScreen debug panel includes Tile Prefetch navigation
+
+Files Created:
+- mobile_app/lib/core/map/tile_math.dart
+- mobile_app/lib/data/db/prefetch_database.dart
+- mobile_app/lib/data/db/prefetch_database.g.dart (generated)
+- mobile_app/lib/data/tiles_repository.dart
+- mobile_app/lib/services/tile_prefetch_service.dart
+- mobile_app/lib/features/prefetch/prefetch_controller.dart
+- mobile_app/lib/features/prefetch/prefetch_screen.dart
+- mobile_app/test/tile_math_test.dart
+- mobile_app/test/prefetch_queue_test.dart
+- docs/day11_prefetch.md
+
+Files Modified:
+- mobile_app/lib/main.dart (provider wiring)
+- mobile_app/lib/features/map/map_screen.dart (debug panel nav)
+- PROJECT_TIMELINE.txt (this update)
+
+Architecture:
+
+Tile Storage:
+  appDocDir/tiles/{z}/{x}/{y}.png
+
+Download Chain:
+  TilePrefetchService → HTTP GET → atomic write → SQL update
+  4 concurrent downloads, 5 retry attempts, exponential backoff
+
+Persistence:
+  openrescue_prefetch.sqlite (separate from main DB)
+  Survives app restarts, supports pause/resume
+
+Notes:
+- Default max 5000 tiles per job (prevents accidental large downloads)
+- 5km radius at zooms 12–16 ≈ 565 tiles (well within limit)
+- Background fetch scaffolded but requires background_fetch package
+- All downloads use configured tile URL from MapService
+- Existing raster fallback and MBTiles logic unchanged
+
+------------------------------------------------------------

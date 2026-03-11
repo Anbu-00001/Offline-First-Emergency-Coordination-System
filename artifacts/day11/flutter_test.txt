@@ -1,0 +1,147 @@
+00:00 +0: loading /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart
+00:00 +0: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Job lifecycle createJob and getJob roundtrip
+00:00 +1: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Job lifecycle updateJobStatus changes status
+00:00 +2: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Job lifecycle completed job gets finishedAt timestamp
+00:00 +3: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Job lifecycle getResumableJobs returns running and paused
+00:00 +4: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Tile enqueue & dequeue enqueueTiles inserts tiles with queued status
+00:00 +5: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Tile enqueue & dequeue nextBatchOfTiles respects limit
+00:00 +6: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Tile enqueue & dequeue markTileDownloaded updates status and filePath
+00:00 +7: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Tile enqueue & dequeue markTileFailed updates status and lastError
+00:00 +8: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Tile enqueue & dequeue requeueFailedTiles requeues tiles under max attempts
+00:00 +9: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Progress tracking incrementJobProgress increases tilesDone
+00:00 +10: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Progress tracking getTileStatusCounts returns correct breakdown
+00:00 +11: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/prefetch_queue_test.dart: Cleanup clearAll removes all data
+00:01 +12: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_tileserver_test.dart: MapService tileserver configuration tileserverUrl constant is accessible
+00:01 +13: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_tileserver_test.dart: MapService tileserver configuration MapService initializes with OSM fallback when no config
+00:01 +14: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_tileserver_test.dart: MapService tileserver configuration MapService fallbackMode returns OSM hard fallback by default
+00:01 +15: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_tileserver_test.dart: MapService tileserver configuration India bounds constants are valid for tileserver integration
+00:01 +16: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_tileserver_test.dart: MapService tileserver configuration MapService exposes tileServerPort as 0 when not started
+00:01 +17: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_tileserver_test.dart: MapService tileserver configuration MapService isUsingMBTiles is false by default
+00:02 +18: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mbtiles_server_test.dart: MBTilesTileServer serves a known tile with correct content
+MBTiles tile server running on http://localhost:34779
+2026-03-11T19:54:08.593659  0:00:00.006956 GET     [200] /tiles/1/0/0.png
+00:02 +19: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mdns_test.dart: MDnsDiscovery stub behavior
+00:02 +19: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mbtiles_server_test.dart: MBTilesTileServer returns 404 for missing tile
+MBTiles tile server running on http://localhost:45765
+2026-03-11T19:54:08.637680  0:00:00.002240 GET     [404] /tiles/5/10/10.png
+00:02 +20: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mdns_test.dart: MDnsDiscovery stub behavior
+00:02 +20: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mbtiles_server_test.dart: MBTilesTileServer returns 404 for invalid path
+MBTiles tile server running on http://localhost:44119
+2026-03-11T19:54:08.660109  0:00:00.000206 GET     [404] /invalid/path
+00:02 +21: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mdns_test.dart: MDnsDiscovery stub behavior
+00:02 +21: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mbtiles_server_test.dart: MBTilesTileServer tileUrlTemplate has correct format
+MBTiles tile server running on http://localhost:33979
+00:02 +22: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mdns_test.dart: MDnsDiscovery stub behavior
+00:02 +22: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mbtiles_server_test.dart: MBTilesTileServer handles TMS y-flip correctly for z=2 tile
+MBTiles tile server running on http://localhost:38407
+2026-03-11T19:54:08.677172  0:00:00.000584 GET     [200] /tiles/2/1/1.png
+00:02 +23: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/mdns_test.dart: MDnsDiscovery stub behavior
+00:02 +24: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapService tile URL resolution buildStyleJson produces valid JSON with correct tile URL
+MapService: Built style JSON (301 chars) with tile URL: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+00:02 +25: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapService tile URL resolution buildStyleJson with local tile URL
+MapService: Built style JSON (299 chars) with tile URL: http://localhost:12345/tiles/{z}/{x}/{y}.png
+00:02 +26: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapService tile URL resolution tileUrl has default value before initialization
+00:02 +27: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapService tile URL resolution fallbackMode reports correctly before initialization
+00:02 +28: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapService tile URL resolution tileServerPort is 0 when no server running
+00:02 +29: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics logConfig stores values correctly
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: https://tile.openstreetmap.org/{z}/{x}/{y}.png
+MapDiagnostics: MBTiles path: /path/to/dev.mbtiles
+MapDiagnostics: MBTiles detected: false
+MapDiagnostics: Tile server started: false
+MapDiagnostics: Fallback mode: OSM hard fallback
+MapDiagnostics: ============================
+00:02 +30: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics recordTileSuccess increments counter
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: test
+MapDiagnostics: MBTiles path: not set
+MapDiagnostics: MBTiles detected: false
+MapDiagnostics: Tile server started: false
+MapDiagnostics: Fallback mode: test
+MapDiagnostics: ============================
+00:02 +31: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics recordTileFailure increments counter and logs error
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: test
+MapDiagnostics: MBTiles path: not set
+MapDiagnostics: MBTiles detected: false
+MapDiagnostics: Tile server started: false
+MapDiagnostics: Fallback mode: test
+MapDiagnostics: ============================
+MapDiagnostics: Tile request failed: Network error
+MapDiagnostics: Tile request failed: Timeout
+00:02 +32: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics reset clears all state
+MapDiagnostics: ====== MAP DIAGNOSTICS ======
+MapDiagnostics: Resolved tile URL: test
+MapDiagnostics: MBTiles path: /path
+MapDiagnostics: MBTiles detected: true
+MapDiagnostics: Tile server started: true
+MapDiagnostics: Tile server port: 12345
+MapDiagnostics: Fallback mode: MBTiles
+MapDiagnostics: ============================
+00:02 +33: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics MBTiles path detection format
+00:02 +34: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_tile_resolution_test.dart: MapDiagnostics local tile URL format
+00:03 +35: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:03 +35: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/ws_service_test.dart: ws_service connects and receives messages
+WS Connected
+WS Closed
+WS: Reconnecting in 1000ms (attempt 1)
+00:03 +36: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+MapScreen: Resolving tile URL...
+MapService: Config tile URL: null
+00:04 +37: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +38: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +39: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +40: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +41: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +42: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +43: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +44: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +45: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +46: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +47: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +48: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +49: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +50: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +51: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +52: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen constructs and renders without error
+00:04 +53: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_math_test.dart: Tile math — totalTilesForJob per-zoom breakdown sums to total
+00:04 +54: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen shows loading state initially
+00:04 +55: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen shows loading state initially
+00:04 +56: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart: MapScreen shows loading state initially
+WARNING (drift): It looks like you've created the database class AppDatabase multiple times. When these two databases use the same QueryExecutor, race conditions will occur and might corrupt the database. 
+Try to follow the advice at https://drift.simonbinder.eu/faq/#using-the-database or, if you know what you're doing, set driftRuntimeOptions.dontWarnAboutMultipleDatabases = true
+Here is the stacktrace from when the database was opened a second time:
+#0      GeneratedDatabase._handleInstantiated (package:drift/src/runtime/api/db_base.dart:96:30)
+#1      GeneratedDatabase._whenConstructed (package:drift/src/runtime/api/db_base.dart:73:12)
+#2      new GeneratedDatabase (package:drift/src/runtime/api/db_base.dart:64:5)
+#3      new _$AppDatabase (package:mobile_app/data/database.g.dart:1250:36)
+#4      new AppDatabase.memory (package:mobile_app/data/database.dart:41:26)
+#5      _buildTestApp (file:///home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart:16:26)
+#6      main.<anonymous closure> (file:///home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/map_screen_widget_test.dart:54:29)
+#7      testWidgets.<anonymous closure>.<anonymous closure> (package:flutter_test/src/widget_tester.dart:192:29)
+<asynchronous suspension>
+#8      TestWidgetsFlutterBinding._runTestBody (package:flutter_test/src/binding.dart:1682:5)
+<asynchronous suspension>
+#9      StackZoneSpecification._registerCallback.<anonymous closure> (package:stack_trace/src/stack_zone_specification.dart:114:42)
+<asynchronous suspension>
+This warning will only appear on debug builds.
+MapScreen: Resolving tile URL...
+00:04 +57: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/incident_mapper_test.dart: incidentFromDb maps correctly
+00:04 +58: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/incident_mapper_test.dart: incidentToDbCompanion maps correctly
+00:04 +59: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_bounds_test.dart: India bounds constants India bounding box values are valid
+00:04 +60: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_bounds_test.dart: India bounds constants India center is within bounding box
+00:04 +61: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_bounds_test.dart: India bounds constants India default zoom is reasonable
+00:04 +62: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_bounds_test.dart: India bounds constants indiaBounds is a valid LatLngBounds containing center
+00:04 +63: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_bounds_test.dart: India bounds constants indiaBounds does not contain locations far outside India
+00:04 +64: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/india_bounds_test.dart: India bounds constants major Indian cities are within bounds
+00:05 +65: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile formats URL correctly and fetches bytes
+Diagnostic: Fetching tile http://127.0.0.1:41027/tiles/3/4/3.png
+Diagnostic: Tile fetch complete - Status: 200, Bytes: 1
+00:05 +66: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile returns 404 for missing tile
+Diagnostic: Fetching tile http://127.0.0.1:42113/missing/3/4/3.png
+Diagnostic: Tile fetch complete - Status: 404, Bytes: 0
+00:05 +67: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile handles invalid URL gracefully
+Diagnostic: Fetching tile http://invalid-url-that-does-not-exist.local
+00:05 +68: /home/anbu/25_class/Sem_4/FOSS/OpenRescue/mobile_app/test/tile_fetch_test.dart: TileFetchDiagnostic fetchSampleTile handles invalid URL gracefully
+Diagnostic: Tile fetch failed - Error: SocketException: HTTP connection timed out after 0:00:10.000000, host: invalid-url-that-does-not-exist.local, port: 80
+00:15 +69: All tests passed!

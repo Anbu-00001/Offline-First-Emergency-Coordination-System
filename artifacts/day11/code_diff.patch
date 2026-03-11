@@ -1,0 +1,184 @@
+diff --git a/PROJECT_TIMELINE.txt b/PROJECT_TIMELINE.txt
+index 6bd2ee8..93a9905 100644
+--- a/PROJECT_TIMELINE.txt
++++ b/PROJECT_TIMELINE.txt
+@@ -582,3 +582,98 @@ Notes:
+ - OSRM fully operational once PBF is processed; scripts handle the full flow
+ 
+ ------------------------------------------------------------
++
++------------------------------------------------------------
++DAY 11:
++Date:
++Focus: Tile Prefetch Engine (5km Radius Caching)
++
++Summary:
++Implemented a robust tile prefetching system for the OpenRescue mobile app.
++Responders can download map tiles for offline use around a specified location.
++The system features persistent SQL-based queue management, async concurrent
++downloads, exponential backoff with jitter, pause/resume/cancel, and a
++dedicated UI screen accessible from the Map Debug Panel.
++
++Major Work Completed:
++
++1. Core Tile Math (tile_math.dart)
++- Pure functions: lonToTileX, latToTileY, metersPerTile, tilesInRadius
++- Deterministic tile set computation for any lat/lon, radius, zoom range
++- Safety guardrail: kMaxTilesPerJob = 5000 tiles per job
++
++2. Prefetch Database (Separate Drift DB)
++- Dedicated SQLite database: openrescue_prefetch.sqlite
++- PrefetchJobs table: job metadata, status tracking, progress
++- PrefetchTiles table: individual tile records with retry tracking
++- In-memory constructor for unit testing
++
++3. Tiles Repository
++- CRUD operations for jobs and tiles
++- Batch enqueue, next-batch dequeue, status transitions
++- Progress increment, failed tile requeue, status counts
++
++4. Tile Prefetch Service
++- Async download engine with 4 concurrent downloads (configurable)
++- Exponential backoff: baseDelay × 2^(attempt-1) with ±20% jitter
++- Atomic writes (temp file + rename) to prevent partial files
++- Disk-existence check to skip already-cached tiles
++- Per-job pause/resume/cancel via flag checks
++- Stream-based progress updates via Drift watch queries
++- resumePendingJobs() for background fetch integration
++
++5. Prefetch UI
++- PrefetchController (ChangeNotifier) wrapping the service
++- PrefetchScreen with radius/zoom config, tile estimation,
++  start/pause/resume/cancel, progress bar, status badges
++- Accessible from Map Debug Panel via "Tile Prefetch" button
++
++6. Tests
++- tile_math_test.dart: 22 tests covering tile X/Y conversion,
++  metersPerTile scaling, tilesRadius, tilesInRadius, totalTilesForJob
++- prefetch_queue_test.dart: in-memory Drift tests for job lifecycle,
++  tile enqueue/dequeue, status transitions, progress tracking, cleanup
++
++7. Provider Integration
++- PrefetchDatabase, TilesRepository, TilePrefetchService,
++  PrefetchController added to main.dart provider tree
++- MapScreen debug panel includes Tile Prefetch navigation
++
++Files Created:
++- mobile_app/lib/core/map/tile_math.dart
++- mobile_app/lib/data/db/prefetch_database.dart
++- mobile_app/lib/data/db/prefetch_database.g.dart (generated)
++- mobile_app/lib/data/tiles_repository.dart
++- mobile_app/lib/services/tile_prefetch_service.dart
++- mobile_app/lib/features/prefetch/prefetch_controller.dart
++- mobile_app/lib/features/prefetch/prefetch_screen.dart
++- mobile_app/test/tile_math_test.dart
++- mobile_app/test/prefetch_queue_test.dart
++- docs/day11_prefetch.md
++
++Files Modified:
++- mobile_app/lib/main.dart (provider wiring)
++- mobile_app/lib/features/map/map_screen.dart (debug panel nav)
++- PROJECT_TIMELINE.txt (this update)
++
++Architecture:
++
++Tile Storage:
++  appDocDir/tiles/{z}/{x}/{y}.png
++
++Download Chain:
++  TilePrefetchService → HTTP GET → atomic write → SQL update
++  4 concurrent downloads, 5 retry attempts, exponential backoff
++
++Persistence:
++  openrescue_prefetch.sqlite (separate from main DB)
++  Survives app restarts, supports pause/resume
++
++Notes:
++- Default max 5000 tiles per job (prevents accidental large downloads)
++- 5km radius at zooms 12–16 ≈ 565 tiles (well within limit)
++- Background fetch scaffolded but requires background_fetch package
++- All downloads use configured tile URL from MapService
++- Existing raster fallback and MBTiles logic unchanged
++
++------------------------------------------------------------
+diff --git a/mobile_app/lib/features/map/map_screen.dart b/mobile_app/lib/features/map/map_screen.dart
+index d57e1a0..ed89844 100644
+--- a/mobile_app/lib/features/map/map_screen.dart
++++ b/mobile_app/lib/features/map/map_screen.dart
+@@ -11,6 +11,7 @@ import '../../core/network/http_logging_override.dart';
+ import '../../data/repositories/incident_repository.dart';
+ import '../../models/models.dart' as models;
+ import '../messaging/messaging_screen.dart';
++import '../prefetch/prefetch_screen.dart';
+ import 'map_service.dart';
+ 
+ // Temporarily disabled for tile debugging:
+@@ -458,6 +459,22 @@ class _MapScreenState extends State<MapScreen> {
+                           child: Text(log,
+                               style: const TextStyle(fontFamily: 'monospace', fontSize: 10)),
+                         )),
++                  const Divider(height: 24),
++                  SizedBox(
++                    width: double.infinity,
++                    child: ElevatedButton.icon(
++                      onPressed: () {
++                        Navigator.pop(context);
++                        Navigator.push(
++                          context,
++                          MaterialPageRoute(
++                              builder: (_) => const PrefetchScreen()),
++                        );
++                      },
++                      icon: const Icon(Icons.download_for_offline),
++                      label: const Text('Tile Prefetch'),
++                    ),
++                  ),
+                 ],
+               ),
+             );
+diff --git a/mobile_app/lib/main.dart b/mobile_app/lib/main.dart
+index 43263cc..a224d53 100644
+--- a/mobile_app/lib/main.dart
++++ b/mobile_app/lib/main.dart
+@@ -6,9 +6,13 @@ import 'core/auth_service.dart';
+ import 'core/api_client.dart';
+ import 'core/ws_service.dart';
+ import 'data/database.dart';
++import 'data/db/prefetch_database.dart';
+ import 'data/repositories/incident_repository.dart';
++import 'data/tiles_repository.dart';
+ import 'features/map/map_screen.dart';
+ import 'features/map/map_service.dart';
++import 'features/prefetch/prefetch_controller.dart';
++import 'services/tile_prefetch_service.dart';
+ 
+ void main() async {
+   WidgetsFlutterBinding.ensureInitialized();
+@@ -25,6 +29,15 @@ void main() async {
+   final wsService = WsService(baseUrl, authService, db);
+   final mapService = MapService();
+ 
++  // 3. Prefetch system
++  final prefetchDb = PrefetchDatabase();
++  final tilesRepo = TilesRepository(prefetchDb);
++  final prefetchService = TilePrefetchService(
++    repo: tilesRepo,
++    mapService: mapService,
++  );
++  final prefetchController = PrefetchController(prefetchService);
++
+   runApp(
+     MultiProvider(
+       providers: [
+@@ -35,6 +48,11 @@ void main() async {
+         Provider<IncidentRepository>.value(value: incidentRepo),
+         Provider<WsService>.value(value: wsService),
+         Provider<MapService>.value(value: mapService),
++        Provider<PrefetchDatabase>.value(value: prefetchDb),
++        Provider<TilesRepository>.value(value: tilesRepo),
++        Provider<TilePrefetchService>.value(value: prefetchService),
++        ChangeNotifierProvider<PrefetchController>.value(
++            value: prefetchController),
+       ],
+       child: const OpenRescueApp(),
+     ),
