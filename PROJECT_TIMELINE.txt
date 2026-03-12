@@ -677,3 +677,60 @@ Notes:
 - Existing raster fallback and MBTiles logic unchanged
 
 ------------------------------------------------------------
+
+DAY 12 — Responder Activation & Tile Prefetch Trigger
+
+Summary:
+Implemented the Responder Activation system which triggers offline tile prefetching when a responder marks themselves as ACTIVE.
+
+Architecture Components Added:
+
+• ResponderStateService
+  - Manages responder mode (inactive / active)
+  - Persists state using SharedPreferences
+  - Emits state changes via Stream<ResponderState>
+
+• LocationService
+  - Retrieves device GPS coordinates
+  - Handles permission checks
+  - Provides LatLng used for prefetch center
+
+• ResponderController
+  - Listens to responder state transitions
+  - On ACTIVE state:
+        retrieves device location
+        triggers TilePrefetchService.startPrefetchForRadius()
+  - Ensures prefetch runs once per activation session
+
+• TilePrefetchService Extension
+  - Added method startPrefetchForRadius(center, radiusMeters)
+  - Calculates tile coverage for zoom levels 14–16
+  - Enqueues tiles into Drift-backed PrefetchQueue
+  - Maintains asynchronous background downloading
+
+• ResponderToggle UI
+  - FloatingActionButton.extended
+  - Allows users to toggle responder mode
+  - Integrated into MapScreen above the incident FAB
+
+Testing & Verification:
+
+• Unit tests added:
+  responder_prefetch_test.dart
+
+• Tests confirm:
+  - activation triggers location lookup
+  - tile prefetch is invoked
+  - PrefetchQueue receives tiles
+  - activation runs once per session
+
+Verification Results:
+
+flutter analyze → PASS  
+flutter test → PASS  
+Architecture integrity → PASS  
+
+Notes:
+No backend changes were introduced. Existing modules such as MapService, MBTilesTileServer, incident_repository, and marker rendering remain unaffected.
+
+------------------------------------------------------------
