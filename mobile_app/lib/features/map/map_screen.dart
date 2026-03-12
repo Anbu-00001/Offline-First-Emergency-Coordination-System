@@ -13,6 +13,7 @@ import '../../models/models.dart' as models;
 import '../messaging/messaging_screen.dart';
 import '../prefetch/prefetch_screen.dart';
 import 'map_service.dart';
+import '../../widgets/responder_toggle.dart';
 
 // Temporarily disabled for tile debugging:
 // import 'package:maplibre_gl/maplibre_gl.dart';
@@ -653,9 +654,18 @@ class _MapScreenState extends State<MapScreen> {
                     ),
                 ],
               ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _openCreateIncidentForm(),
-        child: const Icon(Icons.add_location_alt),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const ResponderToggle(),
+          const SizedBox(height: 16),
+          FloatingActionButton(
+            heroTag: 'add_incident',
+            onPressed: () => _openCreateIncidentForm(),
+            child: const Icon(Icons.add_location_alt),
+          ),
+        ],
       ),
     );
   }

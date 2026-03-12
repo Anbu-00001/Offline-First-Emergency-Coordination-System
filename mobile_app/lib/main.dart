@@ -13,6 +13,10 @@ import 'features/map/map_screen.dart';
 import 'features/map/map_service.dart';
 import 'features/prefetch/prefetch_controller.dart';
 import 'services/tile_prefetch_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'services/responder_state_service.dart';
+import 'services/location_service.dart';
+import 'controllers/responder_controller.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +42,16 @@ void main() async {
   );
   final prefetchController = PrefetchController(prefetchService);
 
+  // 4. Responder System
+  final prefs = await SharedPreferences.getInstance();
+  final responderStateService = ResponderStateService(prefs);
+  final locationService = LocationService();
+  final responderController = ResponderController(
+    stateService: responderStateService,
+    locationService: locationService,
+    prefetchService: prefetchService,
+  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -53,6 +67,9 @@ void main() async {
         Provider<TilePrefetchService>.value(value: prefetchService),
         ChangeNotifierProvider<PrefetchController>.value(
             value: prefetchController),
+        Provider<ResponderStateService>.value(value: responderStateService),
+        Provider<LocationService>.value(value: locationService),
+        Provider<ResponderController>.value(value: responderController),
       ],
       child: const OpenRescueApp(),
     ),

@@ -11,6 +11,7 @@ import '../core/map/tile_math.dart';
 import '../data/tiles_repository.dart';
 import '../data/db/prefetch_database.dart';
 import '../features/map/map_service.dart';
+import 'package:latlong2/latlong.dart';
 
 /// Progress snapshot for a prefetch job.
 class PrefetchProgress {
@@ -117,6 +118,31 @@ class TilePrefetchService {
     // 6. Start processing
     _startProcessing(jobId);
 
+    return jobId;
+  }
+
+  /// Start a tile prefetch specifically for a geographic radius around [center].
+  /// This bridges domain models [LatLng] with system implementations.
+  Future<String> startPrefetchForRadius(LatLng center, int radiusMeters) async {
+    final jobId = await startJob(
+      lat: center.latitude,
+      lon: center.longitude,
+      radiusMeters: radiusMeters.toDouble(),
+      minZoom: 14,
+      maxZoom: 16,
+      allowLargeJob: true, // Emergency responses might need many tiles
+    );
+
+    // After starting, fetch estimate to fulfill logging requirement
+    final estimate = totalTilesForJob(
+      lat: center.latitude,
+      lon: center.longitude,
+      radiusMeters: radiusMeters.toDouble(),
+      minZoom: 14,
+      maxZoom: 16,
+    );
+    debugPrint('Prefetch queue size: ${estimate.total}');
+    
     return jobId;
   }
 
