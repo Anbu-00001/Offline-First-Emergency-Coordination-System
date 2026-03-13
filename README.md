@@ -90,7 +90,7 @@ WebSocket messaging
 
 mDNS local discovery
 
-Documentation
+Documentation:
 
 Additional technical documentation is available:
 
