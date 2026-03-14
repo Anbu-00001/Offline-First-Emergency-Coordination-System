@@ -13,6 +13,12 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-      - run: flutter pub get
-      - run: flutter analyze
-      - run: flutter test
+      - run: |
+          cd mobile_app
+          flutter pub get
+      - run: |
+          cd mobile_app
+          flutter analyze
+      - run: |
+          cd mobile_app
+          flutter test
