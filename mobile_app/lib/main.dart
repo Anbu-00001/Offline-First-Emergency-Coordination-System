@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'services/responder_state_service.dart';
 import 'services/location_service.dart';
 import 'services/osrm_service.dart';
+import 'services/route_cache_service.dart';
 import 'controllers/responder_controller.dart';
 import 'controllers/route_controller.dart';
 
@@ -56,7 +57,8 @@ void main() async {
 
   // 5. OSRM and Routing
   final osrmService = OSRMService();
-  final routeController = RouteController(osrmService);
+  final routeCacheService = RouteCacheService();
+  final routeController = RouteController(osrmService, routeCacheService);
 
   runApp(
     MultiProvider(
@@ -77,6 +79,7 @@ void main() async {
         Provider<LocationService>.value(value: locationService),
         Provider<ResponderController>.value(value: responderController),
         Provider<OSRMService>.value(value: osrmService),
+        Provider<RouteCacheService>.value(value: routeCacheService),
         Provider<RouteController>.value(value: routeController),
       ],
       child: const OpenRescueApp(),

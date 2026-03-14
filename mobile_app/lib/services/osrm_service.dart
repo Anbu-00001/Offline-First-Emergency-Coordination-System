@@ -15,6 +15,8 @@ class OSRMService {
   /// Fetches a route between two coordinate points.
   /// Returns a [RouteResult] with geometry, distance, duration, and steps,
   /// or `null` if the request fails.
+  ///
+  /// Uses polyline6 encoding for ~80% smaller response payloads.
   Future<RouteResult?> fetchRoute({
     required LatLng start,
     required LatLng end,
@@ -24,7 +26,8 @@ class OSRMService {
       final uriStr = '$baseUrl/route/v1/driving/'
           '${start.longitude},${start.latitude};'
           '${end.longitude},${end.latitude}'
-          '?overview=full&geometries=geojson&steps=true';
+          '?overview=full&geometries=polyline6&steps=true'
+          '&annotations=false&alternatives=false';
 
       final uri = Uri.parse(uriStr);
       final response = await _client.get(uri);

@@ -12,6 +12,7 @@ import 'package:mobile_app/data/repositories/incident_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile_app/services/location_service.dart';
 import 'package:mobile_app/services/osrm_service.dart';
+import 'package:mobile_app/services/route_cache_service.dart';
 import 'package:mobile_app/services/responder_state_service.dart';
 import 'package:mobile_app/controllers/route_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -32,7 +33,8 @@ Future<Widget> _buildTestApp() async {
   final mapService = MapService();
   final locationService = LocationService();
   final osrmService = OSRMService();
-  final routeController = RouteController(osrmService);
+  final routeCacheService = RouteCacheService();
+  final routeController = RouteController(osrmService, routeCacheService);
   
   // Create dummy preferences and state service
   SharedPreferences.setMockInitialValues({});
@@ -63,6 +65,7 @@ Future<Widget> _buildTestApp() async {
       Provider<MapService>.value(value: mapService),
       Provider<LocationService>.value(value: locationService),
       Provider<OSRMService>.value(value: osrmService),
+      Provider<RouteCacheService>.value(value: routeCacheService),
       Provider<RouteController>.value(value: routeController),
       Provider<ResponderStateService>.value(value: responderStateService),
       Provider<ResponderController>.value(value: responderController),

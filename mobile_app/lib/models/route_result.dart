@@ -1,4 +1,5 @@
 import 'package:latlong2/latlong.dart';
+import '../utils/polyline_decoder.dart';
 
 /// A single turn-by-turn instruction step from an OSRM route.
 class RouteStep {
@@ -55,7 +56,10 @@ class RouteResult {
 
   /// Parse a [RouteResult] from the top-level OSRM JSON response.
   ///
-  /// Expects the standard OSRM response with `code`, `routes[]`, etc.
+  /// Auto-detects geometry format:
+  /// - If `geometry` is a [String], decodes as polyline6.
+  /// - If `geometry` is a [Map] with `type: LineString`, reads GeoJSON coordinates.
+  ///
   /// Returns `null` if the response is invalid or contains no routes.
   static RouteResult? fromOsrmJson(Map<String, dynamic> data) {
     if (data['code'] != 'Ok') return null;
@@ -64,17 +68,25 @@ class RouteResult {
     if (routes == null || routes.isEmpty) return null;
 
     final route = routes[0] as Map<String, dynamic>;
+    final rawGeometry = route['geometry'];
 
-    // Parse geometry
-    final geometry = route['geometry'] as Map<String, dynamic>?;
-    if (geometry == null || geometry['type'] != 'LineString') return null;
+    List<LatLng> points;
 
-    final coordinates = geometry['coordinates'] as List? ?? [];
-    final points = coordinates.map<LatLng>((coord) {
-      final lon = (coord[0] as num).toDouble();
-      final lat = (coord[1] as num).toDouble();
-      return LatLng(lat, lon);
-    }).toList();
+    if (rawGeometry is String) {
+      // Polyline6 encoded string
+      points = decodePolyline(rawGeometry, precision: 6);
+    } else if (rawGeometry is Map<String, dynamic>) {
+      // GeoJSON LineString
+      if (rawGeometry['type'] != 'LineString') return null;
+      final coordinates = rawGeometry['coordinates'] as List? ?? [];
+      points = coordinates.map<LatLng>((coord) {
+        final lon = (coord[0] as num).toDouble();
+        final lat = (coord[1] as num).toDouble();
+        return LatLng(lat, lon);
+      }).toList();
+    } else {
+      return null;
+    }
 
     if (points.isEmpty) return null;
 
