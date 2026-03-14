@@ -120,6 +120,23 @@ We commit to avoiding all proprietary APIs or third-party locked-in services.
 
 By enforcing these constraints, OpenRescue guarantees deployment flexibility and long-term sustainability without vendor lockdown.
 
-## Quick Start
-1. Copy `.env.example` to `.env` and configure securely.
-2. Build and run via `docker compose up -d --build`.
+## Running the Project
+
+### Backend
+```bash
+cd backend
+source .venv_openrescue/bin/activate
+uvicorn app.main:app --reload
+```
+
+### Mobile App
+```bash
+cd mobile_app
+flutter pub get
+flutter run
+```
+
+### OSRM Routing
+```bash
+docker compose -f docker-compose.osrm.yml up
+```

@@ -68,3 +68,7 @@ mobile_app/.idea/
 *.osrm.*
 *.osm.pbf
 docker/osrm/data/
+
+# Artifacts
+artifacts/*
+*.tar.gz
