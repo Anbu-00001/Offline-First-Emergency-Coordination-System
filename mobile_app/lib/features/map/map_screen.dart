@@ -10,10 +10,13 @@ import '../../core/map/tile_fetch_diagnostic.dart';
 import '../../core/network/http_logging_override.dart';
 import '../../data/repositories/incident_repository.dart';
 import '../../models/models.dart' as models;
+import '../../models/route_result.dart';
 import '../messaging/messaging_screen.dart';
 import '../prefetch/prefetch_screen.dart';
 import 'map_service.dart';
 import '../../widgets/responder_toggle.dart';
+import '../../widgets/route_summary_card.dart';
+import '../../widgets/navigation_steps_panel.dart';
 import '../../controllers/route_controller.dart';
 import '../../services/location_service.dart';
 
@@ -600,10 +603,25 @@ class _MapScreenState extends State<MapScreen> {
                           maxZoom: 19,
                           tileProvider: NetworkTileProvider(),
                         ),
-                        StreamBuilder<List<LatLng>>(
+                        StreamBuilder<RouteResult?>(
                           stream: context.read<RouteController>().routeStream,
                           builder: (context, snapshot) {
-                            final routePoints = snapshot.data ?? [];
+                            final routeResult = snapshot.data;
+                            final routePoints = routeResult?.geometry ?? [];
+
+                            // Auto-fit camera when a new route arrives
+                            if (routeResult != null && routePoints.length >= 2) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                final bounds = LatLngBounds.fromPoints(routePoints);
+                                _mapController.fitCamera(
+                                  CameraFit.bounds(
+                                    bounds: bounds,
+                                    padding: const EdgeInsets.all(40),
+                                  ),
+                                );
+                              });
+                            }
+
                             return PolylineLayer(
                               polylines: [
                                 if (routePoints.isNotEmpty)
@@ -622,6 +640,28 @@ class _MapScreenState extends State<MapScreen> {
                       ],
                     );
                   },
+                ),
+                // Route Summary Card
+                Positioned(
+                  bottom: 80,
+                  left: 0,
+                  right: 0,
+                  child: StreamBuilder<RouteResult?>(
+                    stream: context.read<RouteController>().routeStream,
+                    builder: (context, snapshot) {
+                      final routeResult = snapshot.data;
+                      if (routeResult == null) return const SizedBox.shrink();
+                      return RouteSummaryCard(
+                        route: routeResult,
+                        onClose: () {
+                          context.read<RouteController>().clearRoute();
+                        },
+                        onShowSteps: () {
+                          NavigationStepsPanel.show(context, routeResult.steps);
+                        },
+                      );
+                    },
+                  ),
                 ),
                 // Visual tile source overlay (bottom-left)
                 Positioned(
