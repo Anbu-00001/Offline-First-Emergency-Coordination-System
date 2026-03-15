@@ -787,3 +787,48 @@ No changes were made to backend services. Existing components including MapServi
 Routing currently targets a configurable OSRM endpoint defined in the mobile configuration.
 
 ------------------------------------------------------------
+
+DAY 14 — System Stabilization & Bug Fixes
+
+Summary:
+Technical summary of the fixes and stabilization efforts completed to ensure a robust mobile experience and reliable mapping subsystems.
+
+Fixes Completed:
+• Removed incorrect minimap overlay rendering in FlutterMap UI.
+• Fixed GPS location pointer to accurately center on user coordinates.
+• Implemented functional incident detail view with reverse geocoding and landmark resolution.
+• Implemented responder assignment interface using mock responder proximity data.
+• Fixed tile prefetch worker status tracking and ensured persistent queue integrity.
+• Verified offline tile storage path and local tile prioritization.
+
+------------------------------------------------------------
+
+WEEK 2 SUMMARY — Offline Mapping & Navigation Infrastructure
+
+Major Technical Achievements:
+• Integrated FlutterMap with OpenStreetMap raster tiles.
+• Implemented offline tile caching and tile-prefetch system using geographic radius calculation.
+• Added persistent download queue with concurrency control for tile workers.
+• Integrated OSRM routing backend for local navigation.
+• Implemented responder mode enabling incident navigation workflow.
+• Built modular services architecture (MapService, RoutingService, PrefetchQueue, IncidentRepository).
+• Established offline-first mapping pipeline for disaster scenarios.
+
+------------------------------------------------------------
+
+DAY 15 — Decentralized P2P Communication Layer
+
+Summary:
+Implemented the foundational decentralized peer-to-peer messaging layer using a local Go daemon with GossipSub for discovery and communication.
+
+Implementation Details:
+• Implemented local P2P daemon using Go and go-libp2p.
+• Enabled peer discovery using mDNS for automatic device discovery on LAN networks.
+• Implemented GossipSub pub-sub topic: openrescue.incident for decentralized incident broadcasting.
+• Added HTTP broadcast endpoint (POST /broadcast) for Flutter integration.
+• Added WebSocket event stream (ws://localhost:7000/events) for receiving peer messages.
+• Integrated Flutter P2PService to send and receive incident events.
+• Connected P2P messaging with IncidentRepository to persist peer incidents in the Drift database.
+• Verified successful broadcast pipeline: device A incident → GossipSub → device B database insertion.
+
+------------------------------------------------------------
