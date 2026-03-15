@@ -90,7 +90,11 @@ List<TileCoord> tilesInRadius(
     for (int y = (cy - r).clamp(0, maxTile);
         y <= (cy + r).clamp(0, maxTile);
         y++) {
-      tiles.add(TileCoord(zoom, x, y));
+      final dx = x - cx;
+      final dy = y - cy;
+      if (dx * dx + dy * dy <= r * r) {
+        tiles.add(TileCoord(zoom, x, y));
+      }
     }
   }
   return tiles;

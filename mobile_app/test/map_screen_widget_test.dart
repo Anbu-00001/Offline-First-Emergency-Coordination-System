@@ -11,9 +11,12 @@ import 'package:mobile_app/data/database.dart';
 import 'package:mobile_app/data/repositories/incident_repository.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:mobile_app/services/location_service.dart';
+import 'package:mobile_app/services/geocoding_service.dart';
 import 'package:mobile_app/services/osrm_service.dart';
 import 'package:mobile_app/services/route_cache_service.dart';
+import 'package:mobile_app/services/responder_registry.dart';
 import 'package:mobile_app/services/responder_state_service.dart';
+import 'package:mobile_app/services/routing_service.dart';
 import 'package:mobile_app/controllers/route_controller.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_app/controllers/responder_controller.dart';
@@ -32,9 +35,13 @@ Future<Widget> _buildTestApp() async {
   final wsService = WsService('http://test', authService, db);
   final mapService = MapService();
   final locationService = LocationService();
+  final routingConfig = RoutingConfig();
+  final geocodingService = GeocodingService();
   final osrmService = OSRMService();
+  final routingService = OsrmRoutingService(osrmService: osrmService, config: routingConfig);
   final routeCacheService = RouteCacheService();
-  final routeController = RouteController(osrmService, routeCacheService);
+  final routeController = RouteController(routingService, routeCacheService);
+  final responderRegistry = MockResponderRegistry();
   
   // Create dummy preferences and state service
   SharedPreferences.setMockInitialValues({});
@@ -64,7 +71,11 @@ Future<Widget> _buildTestApp() async {
       Provider<WsService>.value(value: wsService),
       Provider<MapService>.value(value: mapService),
       Provider<LocationService>.value(value: locationService),
+      Provider<RoutingConfig>.value(value: routingConfig),
+      Provider<GeocodingService>.value(value: geocodingService),
       Provider<OSRMService>.value(value: osrmService),
+      Provider<RoutingService>.value(value: routingService),
+      Provider<ResponderRegistry>.value(value: responderRegistry),
       Provider<RouteCacheService>.value(value: routeCacheService),
       Provider<RouteController>.value(value: routeController),
       Provider<ResponderStateService>.value(value: responderStateService),

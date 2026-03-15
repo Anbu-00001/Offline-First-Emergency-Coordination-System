@@ -2,21 +2,21 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/route_result.dart';
-import '../services/osrm_service.dart';
+import '../services/routing_service.dart';
 import '../services/route_cache_service.dart';
 
 /// Controller to manage route requests and emit the current active route.
 ///
 /// Checks [RouteCacheService] before hitting OSRM to reduce network calls.
 class RouteController {
-  final OSRMService _osrmService;
+  final RoutingService _routingService;
   final RouteCacheService _cacheService;
 
   // Stream controller to broadcast the latest route to the UI layer
   final StreamController<RouteResult?> _routeStreamController =
       StreamController<RouteResult?>.broadcast();
 
-  RouteController(this._osrmService, this._cacheService);
+  RouteController(this._routingService, this._cacheService);
 
   Stream<RouteResult?> get routeStream => _routeStreamController.stream;
 
@@ -37,9 +37,9 @@ class RouteController {
       return;
     }
 
-    // 2. Fetch from OSRM
-    debugPrint('RouteController: Cache MISS — fetching from OSRM');
-    final result = await _osrmService.fetchRoute(start: start, end: end);
+    // 2. Fetch from RoutingService
+    debugPrint('RouteController: Cache MISS — fetching from RoutingService');
+    final result = await _routingService.getRoute(start, end);
 
     // 3. Store in cache on success
     if (result != null) {

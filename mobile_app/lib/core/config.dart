@@ -73,3 +73,26 @@ class AppConfig {
     }
   }
 }
+
+enum RoutingMode { local, remote }
+
+/// Configuration specifically for the routing subsystem.
+class RoutingConfig {
+  static final RoutingConfig _instance = RoutingConfig._internal();
+  factory RoutingConfig() => _instance;
+  RoutingConfig._internal();
+
+  /// Defines whether to use the local OSRM bounding box or remote generic server.
+  RoutingMode mode = RoutingMode.local;
+
+  /// Default local OSRM instance.
+  String get localOsrmUrl => 'http://localhost:5000';
+
+  /// Remote fallback OSRM instance (public demo server by default).
+  String get remoteOsrmUrl => 'https://router.project-osrm.org';
+
+  /// Gets the currently active OSRM base URL depending on the active routing mode.
+  String get activeOsrmUrl {
+    return mode == RoutingMode.local ? localOsrmUrl : remoteOsrmUrl;
+  }
+}

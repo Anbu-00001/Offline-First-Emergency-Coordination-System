@@ -121,25 +121,26 @@ class TilePrefetchService {
     return jobId;
   }
 
-  /// Start a tile prefetch specifically for a geographic radius around [center].
+  /// Start a tile prefetch specifically for a geographic radius around [location].
   /// This bridges domain models [LatLng] with system implementations.
-  Future<String> startPrefetchForRadius(LatLng center, int radiusMeters) async {
+  Future<String> prefetchAroundLocation(
+      LatLng location, double radiusMeters, int minZoom, int maxZoom) async {
     final jobId = await startJob(
-      lat: center.latitude,
-      lon: center.longitude,
-      radiusMeters: radiusMeters.toDouble(),
-      minZoom: 14,
-      maxZoom: 16,
+      lat: location.latitude,
+      lon: location.longitude,
+      radiusMeters: radiusMeters,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
       allowLargeJob: true, // Emergency responses might need many tiles
     );
 
     // After starting, fetch estimate to fulfill logging requirement
     final estimate = totalTilesForJob(
-      lat: center.latitude,
-      lon: center.longitude,
-      radiusMeters: radiusMeters.toDouble(),
-      minZoom: 14,
-      maxZoom: 16,
+      lat: location.latitude,
+      lon: location.longitude,
+      radiusMeters: radiusMeters,
+      minZoom: minZoom,
+      maxZoom: maxZoom,
     );
     debugPrint('Prefetch queue size: ${estimate.total}');
     
@@ -260,51 +261,63 @@ class _JobRunner {
     final tileUrl = mapService.tileUrl;
     final tilesDir = await _getTilesDir();
 
-    while (!_paused && !_cancelled) {
-      // Fetch a batch of tiles to process
-      final batch = await repo.nextBatchOfTiles(jobId, limit: concurrency * 2);
+    bool isFetchingBatch = false;
+    final localQueue = <PrefetchTile>[];
+    bool isDone = false;
 
-      if (batch.isEmpty) {
-        // Check if there are failed tiles to requeue
-        final requeued = await repo.requeueFailedTiles(jobId,
-            maxAttempts: kMaxTileAttempts);
-        if (requeued == 0) {
-          // All done
-          await repo.updateJobStatus(jobId, 'completed');
-          debugPrint('PrefetchService: Job $jobId completed');
-          onComplete();
-          return;
+    Future<PrefetchTile?> getNextTile() async {
+      while (!_paused && !_cancelled && !isDone) {
+        if (localQueue.isNotEmpty) {
+          return localQueue.removeAt(0);
         }
-        continue;
-      }
 
-      // Process batch with concurrency limit (simple semaphore)
-      final futures = <Future>[];
-      int active = 0;
-
-      for (final tile in batch) {
-        if (_paused || _cancelled) break;
-
-        // Wait if at concurrency limit
-        while (active >= concurrency) {
+        if (isFetchingBatch) {
           await Future.delayed(const Duration(milliseconds: 50));
-          if (_paused || _cancelled) break;
+          continue;
         }
-        if (_paused || _cancelled) break;
 
-        active++;
-        futures.add(_processTile(tile, tileUrl, tilesDir).whenComplete(() {
-          active--;
-        }));
+        isFetchingBatch = true;
+        try {
+          final batch = await repo.nextBatchOfTiles(jobId, limit: concurrency * 4);
+          if (batch.isEmpty) {
+            final requeued = await repo.requeueFailedTiles(jobId, maxAttempts: kMaxTileAttempts);
+            if (requeued == 0) {
+              isDone = true;
+            }
+          } else {
+            for (final t in batch) {
+              await repo.markTileInProgress(t.id);
+            }
+            localQueue.addAll(batch);
+          }
+        } finally {
+          isFetchingBatch = false;
+        }
       }
-
-      // Wait for current batch to finish
-      await Future.wait(futures);
+      return null;
     }
 
-    if (_cancelled) {
-      onComplete();
+    Future<void> workerLoop() async {
+      while (!_paused && !_cancelled && !isDone) {
+        final tile = await getNextTile();
+        if (tile == null) break;
+
+        await _processTile(tile, tileUrl, tilesDir);
+      }
     }
+
+    // Spawn concurrent workers
+    final workers = List.generate(concurrency, (_) => workerLoop());
+    await Future.wait(workers);
+
+    if (isDone && !_paused && !_cancelled) {
+      await repo.updateJobStatus(jobId, 'completed');
+      debugPrint('PrefetchService: Job $jobId completed');
+    }
+    
+    // Always call onComplete so it's removed from _activeJobs,
+    // allowing resumeJob to restart it.
+    onComplete();
   }
 
   Future<void> _processTile(

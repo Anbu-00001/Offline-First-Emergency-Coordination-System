@@ -13,11 +13,13 @@ import 'features/map/map_screen.dart';
 import 'features/map/map_service.dart';
 import 'features/prefetch/prefetch_controller.dart';
 import 'services/tile_prefetch_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'services/responder_state_service.dart';
 import 'services/location_service.dart';
+import 'services/geocoding_service.dart';
 import 'services/osrm_service.dart';
 import 'services/route_cache_service.dart';
+import 'services/routing_service.dart';
+import 'services/responder_registry.dart';
 import 'controllers/responder_controller.dart';
 import 'controllers/route_controller.dart';
 
@@ -55,10 +57,14 @@ void main() async {
     prefetchService: prefetchService,
   );
 
-  // 5. OSRM and Routing
+  // 5. OSRM, Geocoding, and Routing
+  final geocodingService = GeocodingService();
   final osrmService = OSRMService();
+  final routingConfig = RoutingConfig();
+  final routingService = OsrmRoutingService(osrmService: osrmService, config: routingConfig);
   final routeCacheService = RouteCacheService();
-  final routeController = RouteController(osrmService, routeCacheService);
+  final routeController = RouteController(routingService, routeCacheService);
+  final responderRegistry = MockResponderRegistry();
 
   runApp(
     MultiProvider(
@@ -78,7 +84,11 @@ void main() async {
         Provider<ResponderStateService>.value(value: responderStateService),
         Provider<LocationService>.value(value: locationService),
         Provider<ResponderController>.value(value: responderController),
+        Provider<ResponderRegistry>.value(value: responderRegistry),
+        Provider<RoutingConfig>.value(value: routingConfig),
+        Provider<GeocodingService>.value(value: geocodingService),
         Provider<OSRMService>.value(value: osrmService),
+        Provider<RoutingService>.value(value: routingService),
         Provider<RouteCacheService>.value(value: routeCacheService),
         Provider<RouteController>.value(value: routeController),
       ],

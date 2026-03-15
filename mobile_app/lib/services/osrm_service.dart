@@ -20,9 +20,10 @@ class OSRMService {
   Future<RouteResult?> fetchRoute({
     required LatLng start,
     required LatLng end,
+    String? baseUrlOverride,
   }) async {
     try {
-      final baseUrl = AppConfig.osrmBaseUrl;
+      final baseUrl = baseUrlOverride ?? AppConfig.osrmBaseUrl;
       final uriStr = '$baseUrl/route/v1/driving/'
           '${start.longitude},${start.latitude};'
           '${end.longitude},${end.latitude}'

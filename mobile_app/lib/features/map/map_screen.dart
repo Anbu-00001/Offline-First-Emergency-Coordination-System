@@ -4,7 +4,10 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'dart:math';
 import 'dart:async';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 
+import '../../core/map/fallback_tile_provider.dart';
 import '../../core/map/map_diagnostics.dart';
 import '../../core/map/tile_fetch_diagnostic.dart';
 import '../../core/network/http_logging_override.dart';
@@ -19,6 +22,11 @@ import '../../widgets/route_summary_card.dart';
 import '../../widgets/navigation_steps_panel.dart';
 import '../../controllers/route_controller.dart';
 import '../../services/location_service.dart';
+import '../../services/geocoding_service.dart';
+import '../../services/responder_registry.dart';
+import '../../models/geocode_result.dart';
+import '../../models/nearby_responder.dart';
+import '../../services/responder_state_service.dart';
 
 // Temporarily disabled for tile debugging:
 // import 'package:maplibre_gl/maplibre_gl.dart';
@@ -47,10 +55,13 @@ class _MapScreenState extends State<MapScreen> {
   List<models.Incident> _incidents = [];
   double _currentZoom = 2.0;
   String? _tileUrl;
+  String? _tilesDir;
   bool _tileUrlResolved = false;
   bool _tilesLoading = true;
   Timer? _tileLoadTimer;
   final MapController _mapController = MapController();
+  LatLng? _currentLocation;
+  Timer? _locationTimer;
 
   /// Cluster radius in degrees — adjusts with zoom level.
   double get _clusterRadiusDeg {
@@ -67,10 +78,22 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _initTileUrl();
+    _startLocationUpdates();
+  }
+
+  void _startLocationUpdates() {
+    _locationTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (!mounted) return;
+      final loc = await context.read<LocationService>().getCurrentLocation();
+      if (loc != null && mounted) {
+        setState(() => _currentLocation = loc);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _locationTimer?.cancel();
     _tileLoadTimer?.cancel();
     _mapController.dispose();
     super.dispose();
@@ -82,9 +105,13 @@ class _MapScreenState extends State<MapScreen> {
     final url = await mapService.resolveTileUrl();
     debugPrint('MapScreen: Tile URL resolved: $url');
 
+    final appDir = await getApplicationDocumentsDirectory();
+    final tilesDir = p.join(appDir.path, 'tiles');
+
     if (mounted) {
       setState(() {
         _tileUrl = url;
+        _tilesDir = tilesDir;
         _tileUrlResolved = true;
       });
 
@@ -149,7 +176,7 @@ class _MapScreenState extends State<MapScreen> {
           width: 40,
           height: 40,
           child: GestureDetector(
-            onTap: () => _showIncidentDetails(cluster.first.id),
+            onTap: () => _handleIncidentTap(cluster.first),
             child: Icon(
               _incidentIcon(cluster.first.type),
               color: Colors.red,
@@ -188,76 +215,198 @@ class _MapScreenState extends State<MapScreen> {
     return markers;
   }
 
+  void _handleIncidentTap(models.Incident incident) async {
+    final responderState = context.read<ResponderStateService>().currentState;
+    if (responderState == ResponderState.active) {
+      final locService = context.read<LocationService>();
+      final start = await locService.getCurrentLocation();
+      if (start != null && mounted) {
+        context.read<RouteController>().requestRoute(
+          start: start,
+          end: LatLng(incident.lat, incident.lon),
+        );
+        return; // Skip showing details when routing immediately
+      }
+    }
+    _showIncidentDetails(incident.id);
+  }
+
   void _showIncidentDetails(String id) async {
     final repo = context.read<IncidentRepository>();
+    final geocoder = context.read<GeocodingService>();
     final incident = await repo.getIncident(id);
-    if (!mounted) return;
+    if (incident == null) return;
+    
+    // Attempt local reverse geocoding directly inline to ensure BottomSheet starts with data when cached
+    GeocodeResult? geocodeCache = await geocoder.reverse(incident.lat, incident.lon);
 
+    if (!mounted) return;
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true, // Allow it to expand to content size
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            
+            // If cache miss caused slow fetch, re-fetch inside UI tree silently to swap views
+            if (geocodeCache == null) {
+               geocoder.reverse(incident.lat, incident.lon).then((val) {
+                 if (mounted && val != null) {
+                    setState(() { geocodeCache = val; });
+                 }
+               });
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 16,
+                right: 16,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(_incidentIcon(incident.type), size: 36, color: Colors.blueAccent),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              incident.type,
+                              style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                            ),
+                            Text(
+                              'Priority: ${incident.priority} | Status: ${incident.status}',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.grey[700]),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const Divider(height: 32),
+                  
+                  // Detail Rows
+                  _buildDetailRow(Icons.pin_drop, 'Location', 
+                    geocodeCache != null ? geocodeCache!.address : 'Fetching exact address...'),
+                  
+                  if (geocodeCache?.landmark != null)
+                    _buildDetailRow(Icons.domain, 'Landmark', geocodeCache!.landmark!),
+                  
+                  _buildDetailRow(Icons.explore, 'Coordinates', '${incident.lat.toStringAsFixed(5)}, ${incident.lon.toStringAsFixed(5)}'),
+                  _buildDetailRow(Icons.person, 'Reporter ID', incident.reporter_id),
+                  _buildDetailRow(Icons.access_time, 'Reported At', incident.updated_at.toLocal().toString().split('.')[0]),
+                  
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Close'),
+                      ),
+                      const SizedBox(width: 8),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                           Navigator.pop(context);
+                           _showAssignResponderSheet(incident);
+                        },
+                        icon: const Icon(Icons.assignment_ind),
+                        label: const Text('Assign'),
+                      ),
+                      const SizedBox(width: 8),
+                      // Optional embedded navigate button, primarily handled by marker tapping when responder is active
+                      ElevatedButton.icon(
+                        onPressed: () {
+                           Navigator.pop(context);
+                           _handleIncidentTap(incident); // Force triggering the router protocol
+                        },
+                        icon: const Icon(Icons.navigation),
+                        label: const Text('Navigate'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          }
+        );
+      },
+    );
+  }
+
+  void _showAssignResponderSheet(models.Incident incident) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (ctx) {
-        return Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40, height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text('Incident: ${incident.type}',
-                  style: Theme.of(ctx).textTheme.titleLarge),
-              const SizedBox(height: 8),
-              _buildDetailRow(Icons.flag, 'Status', incident.status),
-              _buildDetailRow(Icons.priority_high, 'Priority', incident.priority),
-              _buildDetailRow(Icons.person, 'Reporter', incident.reporter_id),
-              _buildDetailRow(Icons.location_on, 'Location',
-                  '${incident.lat.toStringAsFixed(4)}, ${incident.lon.toStringAsFixed(4)}'),
-              const Divider(height: 24),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      builder: (context) {
+        final registry = context.read<ResponderRegistry>();
+        return FutureBuilder<List<NearbyResponder>>(
+          future: registry.getNearbyResponders(incident.lat, incident.lon),
+          builder: (context, snapshot) {
+            return Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildActionButton(Icons.visibility, 'View', () {
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Viewing incident details')));
-                  }),
-                  _buildActionButton(Icons.assignment_ind, 'Assign', () {
-                    Navigator.pop(ctx);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Assign responder')));
-                  }),
-                  _buildActionButton(Icons.navigation, 'Navigate', () async {
-                    Navigator.pop(ctx);
-                    final locService = context.read<LocationService>();
-                    final routeController = context.read<RouteController>();
-                    
-                    final start = await locService.getCurrentLocation();
-                    if (start != null) {
-                       routeController.requestRoute(start: start, end: LatLng(incident.lat, incident.lon));
-                    } else {
-                       if (context.mounted) {
-                         ScaffoldMessenger.of(context).showSnackBar(
-                           const SnackBar(content: Text('Could not get current location')),
-                         );
-                       }
-                    }
-                  }),
+                   Center(
+                    child: Container(
+                      width: 40, height: 4,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text('Assign Responder', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  
+                  if (snapshot.connectionState == ConnectionState.waiting)
+                    const Center(child: Padding(
+                      padding: EdgeInsets.all(32.0),
+                      child: CircularProgressIndicator(),
+                    ))
+                  else if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty)
+                    const Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: Text('No active responders found nearby.'),
+                    )
+                  else
+                    ...snapshot.data!.map((responder) => ListTile(
+                          leading: const CircleAvatar(
+                            backgroundColor: Colors.blueAccent,
+                            child: Icon(Icons.person, color: Colors.white),
+                          ),
+                          title: Text(responder.id),
+                          subtitle: Text('${responder.distanceKm.toStringAsFixed(1)} km away'),
+                          trailing: ElevatedButton(
+                            onPressed: () {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Assigned ${incident.id.replaceAll("inc_", "")} to ${responder.id}')),
+                              );
+                            },
+                            child: const Text('Assign'),
+                          ),
+                        )),
+                        
+                  if (snapshot.hasData) const SizedBox(height: 8),
                 ],
               ),
-              const SizedBox(height: 8),
-            ],
-          ),
+            );
+          },
         );
       },
     );
@@ -265,35 +414,23 @@ class _MapScreenState extends State<MapScreen> {
 
   Widget _buildDetailRow(IconData icon, String label, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 18, color: Colors.grey[600]),
-          const SizedBox(width: 8),
-          Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w500)),
-          Expanded(child: Text(value, overflow: TextOverflow.ellipsis)),
+          Icon(icon, size: 20, color: Colors.grey[600]),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 2),
+                Text(value, style: const TextStyle(fontSize: 16)),
+              ],
+            ),
+          )
         ],
-      ),
-    );
-  }
-
-  Widget _buildActionButton(IconData icon, String label, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, color: Theme.of(context).primaryColor),
-            const SizedBox(height: 4),
-            Text(label, style: TextStyle(
-              color: Theme.of(context).primaryColor,
-              fontSize: 12,
-            )),
-          ],
-        ),
       ),
     );
   }
@@ -321,7 +458,7 @@ class _MapScreenState extends State<MapScreen> {
                     subtitle: Text('${i.status} — ${i.priority}'),
                     onTap: () {
                       Navigator.pop(context);
-                      _showIncidentDetails(i.id);
+                      _handleIncidentTap(i);
                     },
                   )),
               if (clusterIncidents.length > 5)
@@ -601,7 +738,36 @@ class _MapScreenState extends State<MapScreen> {
                           urlTemplate: _tileUrl!,
                           userAgentPackageName: 'org.openrescue.mobile',
                           maxZoom: 19,
-                          tileProvider: NetworkTileProvider(),
+                          tileProvider: _tilesDir != null 
+                              ? FallbackFileTileProvider(tilesDir: _tilesDir!)
+                              : NetworkTileProvider(),
+                        ),
+                        StreamBuilder<ResponderState>(
+                          stream: context.read<ResponderStateService>().stateStream,
+                          initialData: context.read<ResponderStateService>().currentState,
+                          builder: (context, snapshot) {
+                            final isActive = snapshot.data == ResponderState.active;
+                            if (isActive && _currentLocation != null) {
+                              return CircleLayer(
+                                circles: [
+                                  CircleMarker(
+                                    point: _currentLocation!,
+                                    color: Colors.blue.withAlpha(50),
+                                    borderColor: Colors.blue,
+                                    borderStrokeWidth: 2,
+                                    useRadiusInMeter: true,
+                                    radius: 5000, // 5km radius
+                                  ),
+                                  CircleMarker(
+                                    point: _currentLocation!,
+                                    color: Colors.blue,
+                                    radius: 8,
+                                  ),
+                                ],
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                         StreamBuilder<RouteResult?>(
                           stream: context.read<RouteController>().routeStream,
@@ -627,7 +793,7 @@ class _MapScreenState extends State<MapScreen> {
                                 if (routePoints.isNotEmpty)
                                   Polyline(
                                     points: routePoints,
-                                    strokeWidth: 4,
+                                    strokeWidth: 5,
                                     color: Colors.blue,
                                   ),
                               ],
@@ -713,13 +879,7 @@ class _MapScreenState extends State<MapScreen> {
                         ),
                       ),
                     ),
-                  // Deep Diagnostic Tile Fetcher
-                  if (_tileUrlResolved)
-                    Positioned(
-                      top: _tilesLoading ? 60 : 16,
-                      right: 16,
-                      child: SampleTileWidget(urlTemplate: _tileUrl!),
-                    ),
+                  // Deep Diagnostic Tile Fetcher removed per user request
                 ],
               ),
       floatingActionButton: Column(
