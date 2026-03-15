@@ -23,6 +23,7 @@ import 'services/routing_service.dart';
 import 'services/responder_registry.dart';
 import 'controllers/responder_controller.dart';
 import 'controllers/route_controller.dart';
+import 'services/p2p_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -35,7 +36,10 @@ void main() async {
   final authService = AuthService();
   final apiClient = ApiClient(baseUrl: baseUrl, authService: authService);
   final db = AppDatabase();
-  final incidentRepo = IncidentRepository(db, apiClient);
+  final p2pService = P2PService(hostUrl: baseUrl);
+  // Start the background connection to the local node
+  p2pService.connect();
+  final incidentRepo = IncidentRepository(db, apiClient, p2pService);
   final wsService = WsService(baseUrl, authService, db);
   final mapService = MapService();
 
@@ -92,6 +96,7 @@ void main() async {
         Provider<RoutingService>.value(value: routingService),
         Provider<RouteCacheService>.value(value: routeCacheService),
         Provider<RouteController>.value(value: routeController),
+        Provider<P2PService>.value(value: p2pService),
       ],
       child: const OpenRescueApp(),
     ),

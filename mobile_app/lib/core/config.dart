@@ -86,7 +86,7 @@ class RoutingConfig {
   RoutingMode mode = RoutingMode.local;
 
   /// Default local OSRM instance.
-  String get localOsrmUrl => 'http://localhost:5000';
+  String get localOsrmUrl => 'http://192.168.1.105:5000';
 
   /// Remote fallback OSRM instance (public demo server by default).
   String get remoteOsrmUrl => 'https://router.project-osrm.org';

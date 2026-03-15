@@ -72,3 +72,8 @@ docker/osrm/data/
 # Artifacts
 artifacts/*
 *.tar.gz
+
+# P2P and OSRM Local Data
+backend/p2p-node/p2p-daemon
+backend/p2p-node/test_ws.js
+osrm-data/

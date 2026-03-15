@@ -4,12 +4,18 @@ import '../../models/models.dart' as domain;
 import '../database.dart' as db;
 import '../../core/api_client.dart';
 import '../mappers/incident_mapper.dart';
+import '../../services/p2p_service.dart';
 
 class IncidentRepository {
   final db.AppDatabase _db;
   final ApiClient _apiClient;
+  final P2PService _p2pService;
 
-  IncidentRepository(this._db, this._apiClient);
+  IncidentRepository(this._db, this._apiClient, this._p2pService) {
+    _p2pService.incomingIncidents.listen((dto) {
+      _handleIncomingP2PIncident(dto);
+    });
+  }
 
   Stream<List<domain.Incident>> watchIncidents() {
     return (_db.select(_db.incidents)..where((t) => t.deleted_flag.equals(false)))
@@ -25,6 +31,21 @@ class IncidentRepository {
   Future<void> createIncident(domain.IncidentCreateDto dto) async {
     final localDocId = 'temp_${DateTime.now().millisecondsSinceEpoch}';
     
+    // Broadcast immediately to peers
+    final incidentToBroadcast = domain.Incident(
+      id: localDocId,
+      reporter_id: 'local_user', // This might be pulled from auth/context
+      type: dto.type,
+      lat: dto.lat,
+      lon: dto.lon,
+      priority: dto.priority,
+      status: dto.status,
+      client_id: dto.client_id,
+      sequence_num: dto.sequence_num,
+      updated_at: DateTime.now(),
+    );
+    _p2pService.broadcastIncident(incidentToBroadcast);
+
     await _db.transaction(() async {
       await _db.into(_db.incidents).insert(
         db.IncidentsCompanion.insert(
@@ -94,6 +115,26 @@ class IncidentRepository {
   Future<void> _upsertIncidentFromServer(domain.Incident serverIncident) async {
     await _db.into(_db.incidents).insertOnConflictUpdate(
       incidentToDbCompanion(serverIncident),
+    );
+  }
+
+  Future<void> _handleIncomingP2PIncident(domain.IncidentCreateDto dto) async {
+    // Basic day-15 integration: instantly insert the gossip message as an incident
+    final p2pId = 'p2p_${DateTime.now().millisecondsSinceEpoch}';
+
+    await _db.into(_db.incidents).insertOnConflictUpdate(
+      db.IncidentsCompanion.insert(
+        id: p2pId,
+        reporter_id: dto.client_id, // Who sent it
+        type: dto.type,
+        lat: dto.lat,
+        lon: dto.lon,
+        priority: dto.priority,
+        status_enum: dto.status,
+        client_id: dto.client_id,
+        sequence_num: dto.sequence_num,
+        updated_at: DateTime.now(),
+      ),
     );
   }
 }
