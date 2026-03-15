@@ -503,8 +503,16 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
-  void _centerOnMyLocation() {
-    _mapController.move(const LatLng(0, 0), 2);
+  void _centerOnMyLocation() async {
+    final locService = context.read<LocationService>();
+    final loc = await locService.getCurrentLocation();
+    if (loc != null && mounted) {
+      _mapController.move(loc, 16.0);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not get current location')),
+      );
+    }
   }
 
   /// Show debug panel with tile diagnostics.
