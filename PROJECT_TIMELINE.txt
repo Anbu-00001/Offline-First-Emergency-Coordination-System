@@ -831,6 +831,38 @@ Implementation Details:
 • Connected P2P messaging with IncidentRepository to persist peer incidents in the Drift database.
 • Verified successful broadcast pipeline: device A incident → GossipSub → device B database insertion.
 
+Technical Architecture Note — Why Go is used for the P2P Mesh Layer
+
+OpenRescue uses Go to implement the decentralized peer-to-peer communication layer for several architectural reasons:
+
+• Go provides mature implementations of libp2p through the go-libp2p library, which powers the GossipSub pub-sub protocol used for decentralized messaging.
+
+• Flutter/Dart currently lacks a stable and production-ready libp2p implementation. Implementing P2P networking directly in Flutter would require building low-level networking primitives manually.
+
+• Go is highly efficient for network daemons due to its lightweight goroutines and built-in concurrency model. This makes it ideal for managing multiple peer connections and message propagation across a mesh network.
+
+• The Go P2P daemon runs as a lightweight background service that handles:
+  * peer discovery using mDNS
+  * GossipSub message broadcasting
+  * peer connection management
+  * message propagation across devices
+
+• The Flutter mobile application communicates with this daemon through a simple HTTP and WebSocket bridge. This clean separation allows the UI layer to remain simple while the networking complexity is handled by Go.
+
+Architecture overview:
+
+Flutter Mobile App
+       ↓
+P2PService (WebSocket + HTTP bridge)
+       ↓
+Go P2P Daemon
+       ↓
+go-libp2p GossipSub Mesh Network
+       ↓
+Other OpenRescue devices
+
+This design keeps the networking layer modular, open-source, and highly scalable while maintaining compatibility with FOSS networking standards.
+
 ------------------------------------------------------------
 
 DAY 16 — P2P Message Stabilization & Deduplication Layer
