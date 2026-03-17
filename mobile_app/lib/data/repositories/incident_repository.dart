@@ -13,8 +13,19 @@ class IncidentRepository {
   final P2PService _p2pService;
 
   IncidentRepository(this._db, this._apiClient, this._p2pService) {
+    // Day-16: Listen for incoming incident_create messages
     _p2pService.incomingIncidents.listen((dto) {
       _handleIncomingP2PIncident(dto);
+    });
+
+    // Day-17: Listen for sync_request messages — respond with local incidents
+    _p2pService.syncRequests.listen((envelope) {
+      _handleSyncRequest(envelope);
+    });
+
+    // Day-17: Listen for sync_response messages — merge received incidents
+    _p2pService.syncResponses.listen((envelope) {
+      _handleSyncResponse(envelope);
     });
   }
 
@@ -27,6 +38,14 @@ class IncidentRepository {
   Future<domain.Incident> getIncident(String id) async {
     final row = await (_db.select(_db.incidents)..where((t) => t.id.equals(id))).getSingle();
     return incidentFromDb(row);
+  }
+
+  /// Fetches all non-deleted incidents from the local database.
+  Future<List<domain.Incident>> getAllIncidents() async {
+    final rows = await (_db.select(_db.incidents)
+          ..where((t) => t.deleted_flag.equals(false)))
+        .get();
+    return rows.map((r) => incidentFromDb(r)).toList();
   }
 
   Future<void> createIncident(domain.IncidentCreateDto dto) async {
@@ -158,5 +177,71 @@ class IncidentRepository {
 
     debugPrint(
         '[IncidentRepo] P2P incident inserted: $incidentId');
+  }
+
+  // ─── Day-17: State Synchronization Handlers ────────────────────────────
+
+  /// Handles a sync_request: fetches all local incidents and sends them back
+  /// as batched sync_response messages via P2PService.
+  Future<void> _handleSyncRequest(dynamic envelope) async {
+    debugPrint('[IncidentRepo] Processing sync_request — fetching local incidents');
+
+    try {
+      final incidents = await getAllIncidents();
+      debugPrint(
+          '[IncidentRepo] Found ${incidents.length} local incidents to sync');
+
+      // Send the incidents back as a sync_response via P2PService
+      await _p2pService.sendSyncResponse(incidents);
+
+      debugPrint(
+          '[IncidentRepo] SYNC_RESPONSE_SENT: ${incidents.length} incidents sent');
+    } catch (e) {
+      debugPrint('[IncidentRepo] Failed to handle sync_request: $e');
+    }
+  }
+
+  /// Handles a sync_response: extracts incidents from the payload and inserts
+  /// them using the existing deduplication logic.
+  Future<void> _handleSyncResponse(dynamic envelope) async {
+    try {
+      final payload = (envelope as dynamic).payload as Map<String, dynamic>;
+      final incidentsList = payload['incidents'] as List<dynamic>? ?? [];
+
+      debugPrint(
+          '[IncidentRepo] SYNC_RESPONSE_RECEIVED: ${incidentsList.length} incidents in batch');
+
+      int mergedCount = 0;
+      for (final incidentData in incidentsList) {
+        final Map<String, dynamic> incMap =
+            incidentData is Map<String, dynamic>
+                ? incidentData
+                : Map<String, dynamic>.from(incidentData as Map);
+
+        final incidentId =
+            incMap['incident_id'] as String? ??
+            'sync_${DateTime.now().millisecondsSinceEpoch}_$mergedCount';
+
+        // Use IncidentCreateDto and pass through existing dedup logic
+        final dto = domain.IncidentCreateDto(
+          type: incMap['type'] as String? ?? 'unknown',
+          lat: (incMap['lat'] as num?)?.toDouble() ?? 0.0,
+          lon: (incMap['lon'] as num?)?.toDouble() ?? 0.0,
+          priority: incMap['priority'] as String? ?? 'medium',
+          status: incMap['status'] as String? ?? 'new',
+          client_id: incMap['reporter_id'] as String? ?? 'synced_peer',
+          sequence_num: 1,
+          data: {'incident_id': incidentId},
+        );
+
+        await _handleIncomingP2PIncident(dto);
+        mergedCount++;
+      }
+
+      debugPrint(
+          '[IncidentRepo] INCIDENT_MERGED: processed $mergedCount incidents from sync_response');
+    } catch (e) {
+      debugPrint('[IncidentRepo] Failed to handle sync_response: $e');
+    }
   }
 }

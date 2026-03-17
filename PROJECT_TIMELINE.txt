@@ -939,3 +939,82 @@ Verification:
   Flutter analyze → PASS (only pre-existing info-level naming warnings)
 
 ------------------------------------------------------------
+
+DAY 17 — Initial State Synchronization Layer
+
+Summary:
+Implemented the initial state synchronization layer so that when a new device joins the mesh network, it automatically fetches existing incidents from connected peers. This ensures late-joining devices have a complete view of the current incident landscape without relying on a central server.
+
+Architecture Components Added:
+
+• Peer Connection Hook (Go daemon)
+  - When a new peer is discovered and connected via mDNS, the daemon
+    automatically broadcasts a sync_request message to the network.
+  - PubSubManager is now initialized before mDNS discovery to enable this.
+  - sync_request is triggered once per peer connection event.
+
+• Sync Request Handling (Flutter)
+  - P2PService listens for sync_request messages via dedicated stream.
+  - IncidentRepository responds by fetching all local incidents from the
+    Drift database and sending them as batched sync_response messages.
+
+• Sync Response Format
+  - Incidents are sent in batches of 50 per message to avoid network flooding.
+  - Each sync_response envelope contains:
+    msg_id, msg_type: "sync_response", origin_peer, payload: { incidents: [...] }
+
+• Sync Response Handling (Flutter)
+  - P2PService routes sync_response messages to a dedicated stream.
+  - IncidentRepository parses incident payloads and inserts each one
+    through the existing _handleIncomingP2PIncident deduplication logic.
+  - DB-level dedup prevents duplicate insertions.
+
+• Peer Sync State Map
+  - P2PService maintains a _peerSyncState map (peer_id → sync_completed).
+  - Prevents responding to duplicate sync_request messages from the same peer.
+  - Prevents infinite sync loops across the network.
+
+• Deduplication Compatibility
+  - All sync messages pass through MessageCache (Flutter) and dedupCache (Go).
+  - sync_response msg_ids are added to the dedup cache before sending.
+
+Message Flow (Late-Join Sync):
+  Device B connects to mesh via mDNS
+    ↓
+  Go daemon broadcasts sync_request (SYNC_REQUEST_SENT)
+    ↓
+  Device A Flutter receives sync_request
+    ↓
+  IncidentRepository fetches all local incidents
+    ↓
+  P2PService sends batched sync_response (SYNC_RESPONSE_SENT)
+    ↓
+  Device B Flutter receives sync_response (SYNC_RESPONSE_RECEIVED)
+    ↓
+  IncidentRepository merges incidents via dedup logic (INCIDENT_MERGED)
+    ↓
+  Incidents appear on Device B map
+
+Logging Added:
+  Go daemon:
+    [Discovery] SYNC_REQUEST_SENT
+  Flutter:
+    [P2P] SYNC_REQUEST_RECEIVED
+    [P2P] SYNC_RESPONSE_RECEIVED
+    [P2P] SYNC_RESPONSE_SENT
+    [IncidentRepo] SYNC_RESPONSE_SENT
+    [IncidentRepo] SYNC_RESPONSE_RECEIVED
+    [IncidentRepo] INCIDENT_MERGED
+
+Files Modified:
+- backend/p2p-node/main.go (reordered PubSub init before Discovery)
+- backend/p2p-node/discovery.go (sync_request broadcast on peer connect)
+- mobile_app/lib/services/p2p_service.dart (sync streams, peer state map, batch response)
+- mobile_app/lib/data/repositories/incident_repository.dart (sync handlers, getAllIncidents)
+- PROJECT_TIMELINE.txt (this update)
+
+Verification:
+  Go build → PASS
+  Flutter analyze → PASS
+
+------------------------------------------------------------

@@ -31,18 +31,18 @@ func main() {
 		fmt.Printf("Listening on: %s/p2p/%s\n", addr.String(), host.ID().String())
 	}
 
-	// 2. Setup mDNS discovery
-	if err := setupDiscovery(host); err != nil {
-		log.Fatalf("Failed to setup mDNS discovery: %v", err)
-	}
-
 	// Channel for messages received from GossipSub to be sent to WebSocket clients
 	msgChan := make(chan NetworkEnvelope, 100)
 
-	// 3. Setup PubSub (GossipSub)
+	// 2. Setup PubSub (GossipSub) first so we can pass it to discovery
 	pubSubManager, err := setupPubSub(ctx, host, msgChan)
 	if err != nil {
 		log.Fatalf("Failed to setup PubSub: %v", err)
+	}
+
+	// 3. Setup mDNS discovery
+	if err := setupDiscovery(host, pubSubManager); err != nil {
+		log.Fatalf("Failed to setup mDNS discovery: %v", err)
 	}
 
 	// 4. Start HTTP/WS API server on port 7000
