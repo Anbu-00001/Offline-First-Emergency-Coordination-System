@@ -17,12 +17,17 @@ const IncidentTopic = "openrescue.incident"
 const dedupCacheSize = 1000
 
 // NetworkEnvelope is the standardized message envelope for P2P communication.
+// Day-18: Extended with Lamport clock and causal dependency tracking.
 // Designed to be forward-compatible: unknown fields in Payload are preserved.
 type NetworkEnvelope struct {
 	MsgID      string                 `json:"msg_id"`
 	MsgType    string                 `json:"msg_type"`
 	OriginPeer string                 `json:"origin_peer"`
 	Timestamp  int64                  `json:"timestamp"`
+	// Day-18: Lamport logical clock value at time of send
+	Clock      int64                  `json:"clock"`
+	// Day-18: IDs of messages this message causally depends on
+	PrevMsgIDs []string               `json:"prev_msg_ids"`
 	Payload    map[string]interface{} `json:"payload"`
 }
 
@@ -64,17 +69,23 @@ func (c *dedupCache) isDuplicate(msgID string) bool {
 }
 
 type PubSubManager struct {
-	ctx     context.Context
-	ps      *pubsub.PubSub
-	topic   *pubsub.Topic
-	sub     *pubsub.Subscription
-	host    host.Host
-	msgChan chan NetworkEnvelope
-	dedup   *dedupCache
+	ctx        context.Context
+	ps         *pubsub.PubSub
+	topic      *pubsub.Topic
+	sub        *pubsub.Subscription
+	host       host.Host
+	msgChan    chan NetworkEnvelope
+	dedup      *dedupCache
+	// Day-18: Lamport logical clock
+	clock      int64
+	clockMu    sync.Mutex
+	// Day-18: GossipLog for causal ordering
+	gossipLog  *GossipLog
 }
 
-// setupPubSub initializes GossipSub and subscribes to the incident topic
-func setupPubSub(ctx context.Context, h host.Host, msgChan chan NetworkEnvelope) (*PubSubManager, error) {
+// setupPubSub initializes GossipSub and subscribes to the incident topic.
+// Day-18: accepts a *GossipLog so the listenLoop can perform causal filtering.
+func setupPubSub(ctx context.Context, h host.Host, msgChan chan NetworkEnvelope, gl *GossipLog) (*PubSubManager, error) {
 	// Create a new GossipSub routing instance
 	ps, err := pubsub.NewGossipSub(ctx, h)
 	if err != nil {
@@ -94,13 +105,14 @@ func setupPubSub(ctx context.Context, h host.Host, msgChan chan NetworkEnvelope)
 	}
 
 	manager := &PubSubManager{
-		ctx:     ctx,
-		ps:      ps,
-		topic:   topic,
-		sub:     sub,
-		host:    h,
-		msgChan: msgChan,
-		dedup:   newDedupCache(dedupCacheSize),
+		ctx:       ctx,
+		ps:        ps,
+		topic:     topic,
+		sub:       sub,
+		host:      h,
+		msgChan:   msgChan,
+		dedup:     newDedupCache(dedupCacheSize),
+		gossipLog: gl,
 	}
 
 	// Start listening for messages in the background
@@ -110,7 +122,8 @@ func setupPubSub(ctx context.Context, h host.Host, msgChan chan NetworkEnvelope)
 	return manager, nil
 }
 
-// listenLoop continuously reads from the subscription
+// listenLoop continuously reads from the subscription.
+// Day-18: applies Lamport clock update and routes through GossipLog for causal ordering.
 func (m *PubSubManager) listenLoop() {
 	for {
 		msg, err := m.sub.Next(m.ctx)
@@ -137,18 +150,25 @@ func (m *PubSubManager) listenLoop() {
 			continue
 		}
 
-		log.Printf("[PubSub] Message received: msg_id=%s msg_type=%s from peer %s\n", envelope.MsgID, envelope.MsgType, msg.ReceivedFrom)
-
-		// Forward to the channel for the WebSocket API to pick up
-		select {
-		case m.msgChan <- envelope:
-		default:
-			log.Println("[PubSub] Message channel full, dropping message")
+		// Day-18: Lamport clock update — max(local, received) + 1
+		m.clockMu.Lock()
+		if envelope.Clock > m.clock {
+			m.clock = envelope.Clock
 		}
+		m.clock++
+		m.clockMu.Unlock()
+
+		log.Printf("[PubSub] MESSAGE_RECEIVED: msg_id=%s msg_type=%s clock=%d from peer %s\n",
+			envelope.MsgID, envelope.MsgType, envelope.Clock, msg.ReceivedFrom)
+
+		// Day-18: Route through GossipLog for causal dependency check
+		// GossipLog.Receive() will forward to msgChan only when all deps are satisfied
+		m.gossipLog.Receive(envelope)
 	}
 }
 
-// Broadcast serializes and publishes a network envelope
+// Broadcast serializes and publishes a network envelope.
+// Day-18: increments local Lamport clock and stamps it on the outgoing envelope.
 func (m *PubSubManager) Broadcast(envelope NetworkEnvelope) error {
 	// Stamp origin_peer with our peer ID
 	envelope.OriginPeer = m.host.ID().String()
@@ -168,14 +188,28 @@ func (m *PubSubManager) Broadcast(envelope NetworkEnvelope) error {
 		envelope.MsgType = "incident_create"
 	}
 
+	// Day-18: Increment Lamport clock on send
+	m.clockMu.Lock()
+	m.clock++
+	envelope.Clock = m.clock
+	m.clockMu.Unlock()
+
+	// Initialize PrevMsgIDs to empty slice if nil (for consistent JSON output)
+	if envelope.PrevMsgIDs == nil {
+		envelope.PrevMsgIDs = []string{}
+	}
+
 	// Add to our own dedup cache to prevent echo
 	m.dedup.isDuplicate(envelope.MsgID)
+
+	// Day-18: Also record our own sent messages in the GossipLog as applied
+	m.gossipLog.RecordSent(envelope)
 
 	data, err := json.Marshal(envelope)
 	if err != nil {
 		return fmt.Errorf("failed to marshal envelope: %w", err)
 	}
 
-	log.Printf("[PubSub] Message published: msg_id=%s msg_type=%s\n", envelope.MsgID, envelope.MsgType)
+	log.Printf("[PubSub] Message published: msg_id=%s msg_type=%s clock=%d\n", envelope.MsgID, envelope.MsgType, envelope.Clock)
 	return m.topic.Publish(m.ctx, data)
 }

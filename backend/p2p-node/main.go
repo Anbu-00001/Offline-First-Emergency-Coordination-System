@@ -34,18 +34,23 @@ func main() {
 	// Channel for messages received from GossipSub to be sent to WebSocket clients
 	msgChan := make(chan NetworkEnvelope, 100)
 
-	// 2. Setup PubSub (GossipSub) first so we can pass it to discovery
-	pubSubManager, err := setupPubSub(ctx, host, msgChan)
+	// Day-18: 2. Initialize GossipLog — causal ordering layer
+	// GossipLog sits between GossipSub and the WebSocket API.
+	// Only causally-ready messages are forwarded to msgChan.
+	gossipLog := NewGossipLog(msgChan)
+
+	// 3. Setup PubSub (GossipSub) first so we can pass it to discovery
+	pubSubManager, err := setupPubSub(ctx, host, msgChan, gossipLog)
 	if err != nil {
 		log.Fatalf("Failed to setup PubSub: %v", err)
 	}
 
-	// 3. Setup mDNS discovery
+	// 4. Setup mDNS discovery
 	if err := setupDiscovery(host, pubSubManager); err != nil {
 		log.Fatalf("Failed to setup mDNS discovery: %v", err)
 	}
 
-	// 4. Start HTTP/WS API server on port 7000
+	// 5. Start HTTP/WS API server on port 7000
 	apiServer := NewAPIServer(7000, pubSubManager, msgChan)
 	if err := apiServer.Start(); err != nil {
 		log.Fatalf("Failed to start API server: %v", err)

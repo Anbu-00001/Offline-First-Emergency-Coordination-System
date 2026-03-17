@@ -6,6 +6,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 import '../models/models.dart';
 import '../models/network_envelope.dart';
 import 'message_cache.dart';
+import 'gossip_log_service.dart';
 
 /// Maximum number of incidents per sync_response batch to avoid network flooding.
 const int syncBatchSize = 50;
@@ -15,6 +16,7 @@ const int syncBatchSize = 50;
 /// Features:
 /// - Envelope-based messaging (NetworkEnvelope)
 /// - Deduplication via MessageCache
+/// - Day-18: Causal ordering via GossipLogService (Lamport clocks + dep tracking)
 /// - Outgoing message queue for offline resilience
 /// - Automatic reconnection with queued message flush
 /// - State synchronization via sync_request / sync_response protocol (Day-17)
@@ -40,6 +42,13 @@ class P2PService {
   /// Message deduplication cache (LRU, 1000 entries)
   final MessageCache _messageCache = MessageCache(maxSize: 1000);
 
+  /// Day-18: GossipLog causal ordering layer
+  /// Sits between raw message receive and incident routing.
+  final GossipLogService _gossipLog = GossipLogService();
+
+  /// Subscription to GossipLog's valid (causally-ready) messages
+  StreamSubscription<NetworkEnvelope>? _gossipLogSub;
+
   /// Outgoing message queue for when the connection is unavailable
   final List<NetworkEnvelope> _outgoingQueue = [];
 
@@ -47,7 +56,12 @@ class P2PService {
   /// peer_id → sync_completed (boolean)
   final Map<String, bool> _peerSyncState = {};
 
-  P2PService({required this.hostUrl});
+  P2PService({required this.hostUrl}) {
+    // Day-18: Subscribe to GossipLog valid messages and route them
+    _gossipLogSub = _gossipLog.validMessages.listen((envelope) {
+      _routeValidEnvelope(envelope);
+    });
+  }
 
   /// The stream of incidents received from the P2P network
   Stream<IncidentCreateDto> get incomingIncidents =>
@@ -106,7 +120,11 @@ class P2PService {
     }
   }
 
-  /// Handles an incoming WebSocket message, parsing it as a NetworkEnvelope
+  /// Handles an incoming WebSocket message, parsing it as a NetworkEnvelope.
+  ///
+  /// Day-18: After dedup, sync meta-messages (sync_request/sync_response) are
+  /// routed directly. All other messages (incident_create, etc.) pass through
+  /// GossipLogService for causal validation before downstream routing.
   void _handleIncomingMessage(dynamic message) {
     try {
       final data = jsonDecode(message) as Map<String, dynamic>;
@@ -120,28 +138,42 @@ class P2PService {
       }
 
       debugPrint(
-          '[P2P] Received: msg_id=${envelope.msgId} msg_type=${envelope.msgType} from ${envelope.originPeer}');
+          '[P2P] Received: msg_id=${envelope.msgId} msg_type=${envelope.msgType} '
+          'clock=${envelope.clock} from ${envelope.originPeer}');
 
-      // Forward the raw envelope
+      // Forward the raw envelope for any listeners that want it
       _envelopeStreamController.add(envelope);
 
-      // Route based on msg_type
-      switch (envelope.msgType) {
-        case 'incident_create':
-          _handleIncidentCreate(envelope);
-          break;
-        case 'sync_request':
-          _handleSyncRequest(envelope);
-          break;
-        case 'sync_response':
-          _handleSyncResponse(envelope);
-          break;
-        default:
-          debugPrint(
-              '[P2P] Unknown msg_type: ${envelope.msgType}, forwarding envelope only');
+      // Day-18: sync_request and sync_response bypass GossipLog.
+      // They are bulk state transfer meta-messages, not causal operations.
+      if (envelope.msgType == 'sync_request') {
+        _handleSyncRequest(envelope);
+        return;
       }
+      if (envelope.msgType == 'sync_response') {
+        _handleSyncResponse(envelope);
+        return;
+      }
+
+      // All other message types go through GossipLog for causal ordering.
+      // _gossipLogSub will call _routeValidEnvelope when deps are satisfied.
+      _gossipLog.receive(envelope);
     } catch (e) {
       debugPrint('[P2P] Failed to parse incoming message: $e');
+    }
+  }
+
+  /// Routes a causally-validated envelope to the appropriate downstream handler.
+  ///
+  /// Called by the GossipLog subscription once all dependencies are satisfied.
+  void _routeValidEnvelope(NetworkEnvelope envelope) {
+    switch (envelope.msgType) {
+      case 'incident_create':
+        _handleIncidentCreate(envelope);
+        break;
+      default:
+        debugPrint(
+            '[P2P] GossipLog applied unknown msg_type: ${envelope.msgType}, forwarding envelope only');
     }
   }
 
@@ -297,14 +329,21 @@ class P2PService {
 
   /// Broadcasts an incident to the P2P network using the local daemon.
   ///
+  /// Day-18: Stamps the current Lamport clock and records the message in the
+  /// GossipLog so that peers can reference it as a dependency.
+  ///
   /// Wraps the incident in a NetworkEnvelope. If the connection is unavailable,
   /// the message is queued and will be sent when reconnected.
   Future<void> broadcastIncident(Incident incident) async {
+    // Day-18: Compute current HEADS as prevMsgIds for this outgoing message
+    final currentHeads = _gossipLog.heads.toList();
+
     final envelope = NetworkEnvelope(
       msgId: 'msg_${DateTime.now().millisecondsSinceEpoch}_${incident.id.hashCode.abs()}',
       msgType: 'incident_create',
       originPeer: '', // Will be stamped by the Go daemon
       timestamp: incident.updatedAt.millisecondsSinceEpoch ~/ 1000,
+      prevMsgIds: currentHeads, // Day-18: causal dependencies
       payload: {
         'type': incident.type,
         'incident_id': incident.id,
@@ -315,6 +354,9 @@ class P2PService {
         'device_id': incident.reporterId,
       },
     );
+
+    // Day-18: Record as sent in GossipLog (increments local clock)
+    _gossipLog.recordSent(envelope);
 
     // Add to our own dedup cache to prevent self-echo
     _messageCache.isDuplicate(envelope.msgId);
@@ -327,6 +369,8 @@ class P2PService {
   }
 
   void dispose() {
+    _gossipLogSub?.cancel();
+    _gossipLog.dispose();
     _channel?.sink.close();
     _envelopeStreamController.close();
     _incidentStreamController.close();
