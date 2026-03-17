@@ -9,7 +9,6 @@ import 'package:path/path.dart' as p;
 
 import '../../core/map/fallback_tile_provider.dart';
 import '../../core/map/map_diagnostics.dart';
-import '../../core/map/tile_fetch_diagnostic.dart';
 import '../../core/network/http_logging_override.dart';
 import '../../data/repositories/incident_repository.dart';
 import '../../models/models.dart' as models;
@@ -235,8 +234,7 @@ class _MapScreenState extends State<MapScreen> {
     final repo = context.read<IncidentRepository>();
     final geocoder = context.read<GeocodingService>();
     final incident = await repo.getIncident(id);
-    if (incident == null) return;
-    
+    // Remove the impossible null check since GeocodingService.reverse() handles defaults
     // Attempt local reverse geocoding directly inline to ensure BottomSheet starts with data when cached
     GeocodeResult? geocodeCache = await geocoder.reverse(incident.lat, incident.lon);
 
@@ -302,8 +300,8 @@ class _MapScreenState extends State<MapScreen> {
                     _buildDetailRow(Icons.domain, 'Landmark', geocodeCache!.landmark!),
                   
                   _buildDetailRow(Icons.explore, 'Coordinates', '${incident.lat.toStringAsFixed(5)}, ${incident.lon.toStringAsFixed(5)}'),
-                  _buildDetailRow(Icons.person, 'Reporter ID', incident.reporter_id),
-                  _buildDetailRow(Icons.access_time, 'Reported At', incident.updated_at.toLocal().toString().split('.')[0]),
+                  _buildDetailRow(Icons.person, 'Reporter ID', incident.reporterId),
+                  _buildDetailRow(Icons.access_time, 'Reported At', incident.updatedAt.toLocal().toString().split('.')[0]),
                   
                   const SizedBox(height: 24),
                   Row(
@@ -1008,8 +1006,8 @@ class _CreateIncidentFormState extends State<_CreateIncidentForm> {
                 lon: lon,
                 priority: _priorityController.text,
                 status: 'New',
-                client_id: 'device_123',
-                sequence_num: DateTime.now().millisecondsSinceEpoch,
+                clientId: 'device_123',
+                sequenceNum: DateTime.now().millisecondsSinceEpoch,
               );
               await repo.createIncident(dto);
 

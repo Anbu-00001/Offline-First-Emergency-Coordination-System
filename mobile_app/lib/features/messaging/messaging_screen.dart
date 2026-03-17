@@ -50,7 +50,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
             child: StreamBuilder<List<SyncQueueData>>(
               // Watch outgoing messages for status
               stream: (db.select(db.syncQueue)
-                    ..where((t) => t.entity_type.equals('Message'))
+                    ..where((t) => t.entityType.equals('Message'))
                     ..orderBy([(t) => drift.OrderingTerm(expression: t.timestamp, mode: drift.OrderingMode.asc)]))
                   .watch(),
               builder: (context, snapshot) {

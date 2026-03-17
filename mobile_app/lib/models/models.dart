@@ -15,10 +15,12 @@ class Health {
 
 @JsonSerializable(explicitToJson: true)
 class AuthResponse {
-  final String access_token;
-  final String token_type;
+  @JsonKey(name: 'access_token')
+  final String accessToken;
+  @JsonKey(name: 'token_type')
+  final String tokenType;
 
-  AuthResponse({required this.access_token, required this.token_type});
+  AuthResponse({required this.accessToken, required this.tokenType});
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) => _$AuthResponseFromJson(json);
   Map<String, dynamic> toJson() => _$AuthResponseToJson(this);
@@ -27,34 +29,39 @@ class AuthResponse {
 @JsonSerializable(explicitToJson: true)
 class Incident {
   final String id;
-  final String reporter_id;
+  @JsonKey(name: 'reporter_id')
+  final String reporterId;
   final String type;
   final double lat;
   final double lon;
-  final String? assigned_responder_id;
+  @JsonKey(name: 'assigned_responder_id')
+  final String? assignedResponderId;
   final String priority;
   final String status;
-  final String client_id;
-  final int sequence_num;
+  @JsonKey(name: 'client_id')
+  final String clientId;
+  @JsonKey(name: 'sequence_num')
+  final int sequenceNum;
   final bool deleted;
-  final DateTime updated_at;
+  @JsonKey(name: 'updated_at')
+  final DateTime updatedAt;
   
   // Optional additional fields present in API that we might need to store
   final Map<String, dynamic>? data;
 
   Incident({
     required this.id,
-    required this.reporter_id,
+    required this.reporterId,
     required this.type,
     required this.lat,
     required this.lon,
-    this.assigned_responder_id,
+    this.assignedResponderId,
     required this.priority,
     required this.status,
-    required this.client_id,
-    required this.sequence_num,
+    required this.clientId,
+    required this.sequenceNum,
     this.deleted = false,
-    required this.updated_at,
+    required this.updatedAt,
     this.data,
   });
 
@@ -69,8 +76,10 @@ class IncidentCreateDto {
   final double lon;
   final String priority;
   final String status;
-  final String client_id;
-  final int sequence_num;
+  @JsonKey(name: 'client_id')
+  final String clientId;
+  @JsonKey(name: 'sequence_num')
+  final int sequenceNum;
   final Map<String, dynamic>? data;
 
   IncidentCreateDto({
@@ -79,8 +88,8 @@ class IncidentCreateDto {
     required this.lon,
     required this.priority,
     required this.status,
-    required this.client_id,
-    required this.sequence_num,
+    required this.clientId,
+    required this.sequenceNum,
     this.data,
   });
 
@@ -90,19 +99,22 @@ class IncidentCreateDto {
 
 @JsonSerializable(explicitToJson: true)
 class LocalChange {
-  final String entity_type;
-  final String entity_id;
+  @JsonKey(name: 'entity_type')
+  final String entityType;
+  @JsonKey(name: 'entity_id')
+  final String entityId;
   final String operation; // 'CREATE', 'UPDATE', 'DELETE'
   final Map<String, dynamic> data;
-  final int sequence_num;
+  @JsonKey(name: 'sequence_num')
+  final int sequenceNum;
   final DateTime timestamp;
 
   LocalChange({
-    required this.entity_type,
-    required this.entity_id,
+    required this.entityType,
+    required this.entityId,
     required this.operation,
     required this.data,
-    required this.sequence_num,
+    required this.sequenceNum,
     required this.timestamp,
   });
 
@@ -115,13 +127,14 @@ class SyncResult {
   final List<Incident> accepted;
   final List<Incident> conflicts;
   final List<Map<String, dynamic>> errors;
-  final int current_server_sequence;
+  @JsonKey(name: 'current_server_sequence')
+  final int currentServerSequence;
 
   SyncResult({
     required this.accepted,
     required this.conflicts,
     required this.errors,
-    required this.current_server_sequence,
+    required this.currentServerSequence,
   });
 
   factory SyncResult.fromJson(Map<String, dynamic> json) => _$SyncResultFromJson(json);

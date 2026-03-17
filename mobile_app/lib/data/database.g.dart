@@ -18,11 +18,11 @@ class $IncidentsTable extends Incidents
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _reporter_idMeta = const VerificationMeta(
-    'reporter_id',
+  static const VerificationMeta _reporterIdMeta = const VerificationMeta(
+    'reporterId',
   );
   @override
-  late final GeneratedColumn<String> reporter_id = GeneratedColumn<String>(
+  late final GeneratedColumn<String> reporterId = GeneratedColumn<String>(
     'reporter_id',
     aliasedName,
     false,
@@ -56,10 +56,10 @@ class $IncidentsTable extends Incidents
     type: DriftSqlType.double,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _assigned_responder_idMeta =
-      const VerificationMeta('assigned_responder_id');
+  static const VerificationMeta _assignedResponderIdMeta =
+      const VerificationMeta('assignedResponderId');
   @override
-  late final GeneratedColumn<String> assigned_responder_id =
+  late final GeneratedColumn<String> assignedResponderId =
       GeneratedColumn<String>(
         'assigned_responder_id',
         aliasedName,
@@ -78,44 +78,44 @@ class $IncidentsTable extends Incidents
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _status_enumMeta = const VerificationMeta(
-    'status_enum',
+  static const VerificationMeta _statusEnumMeta = const VerificationMeta(
+    'statusEnum',
   );
   @override
-  late final GeneratedColumn<String> status_enum = GeneratedColumn<String>(
+  late final GeneratedColumn<String> statusEnum = GeneratedColumn<String>(
     'status_enum',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _client_idMeta = const VerificationMeta(
-    'client_id',
+  static const VerificationMeta _clientIdMeta = const VerificationMeta(
+    'clientId',
   );
   @override
-  late final GeneratedColumn<String> client_id = GeneratedColumn<String>(
+  late final GeneratedColumn<String> clientId = GeneratedColumn<String>(
     'client_id',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _sequence_numMeta = const VerificationMeta(
-    'sequence_num',
+  static const VerificationMeta _sequenceNumMeta = const VerificationMeta(
+    'sequenceNum',
   );
   @override
-  late final GeneratedColumn<int> sequence_num = GeneratedColumn<int>(
+  late final GeneratedColumn<int> sequenceNum = GeneratedColumn<int>(
     'sequence_num',
     aliasedName,
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _deleted_flagMeta = const VerificationMeta(
-    'deleted_flag',
+  static const VerificationMeta _deletedFlagMeta = const VerificationMeta(
+    'deletedFlag',
   );
   @override
-  late final GeneratedColumn<bool> deleted_flag = GeneratedColumn<bool>(
+  late final GeneratedColumn<bool> deletedFlag = GeneratedColumn<bool>(
     'deleted_flag',
     aliasedName,
     false,
@@ -126,11 +126,11 @@ class $IncidentsTable extends Incidents
     ),
     defaultValue: const Constant(false),
   );
-  static const VerificationMeta _updated_atMeta = const VerificationMeta(
-    'updated_at',
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
   );
   @override
-  late final GeneratedColumn<DateTime> updated_at = GeneratedColumn<DateTime>(
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
     'updated_at',
     aliasedName,
     false,
@@ -140,17 +140,17 @@ class $IncidentsTable extends Incidents
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    reporter_id,
+    reporterId,
     type,
     lat,
     lon,
-    assigned_responder_id,
+    assignedResponderId,
     priority,
-    status_enum,
-    client_id,
-    sequence_num,
-    deleted_flag,
-    updated_at,
+    statusEnum,
+    clientId,
+    sequenceNum,
+    deletedFlag,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -171,14 +171,11 @@ class $IncidentsTable extends Incidents
     }
     if (data.containsKey('reporter_id')) {
       context.handle(
-        _reporter_idMeta,
-        reporter_id.isAcceptableOrUnknown(
-          data['reporter_id']!,
-          _reporter_idMeta,
-        ),
+        _reporterIdMeta,
+        reporterId.isAcceptableOrUnknown(data['reporter_id']!, _reporterIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_reporter_idMeta);
+      context.missing(_reporterIdMeta);
     }
     if (data.containsKey('type')) {
       context.handle(
@@ -206,10 +203,10 @@ class $IncidentsTable extends Incidents
     }
     if (data.containsKey('assigned_responder_id')) {
       context.handle(
-        _assigned_responder_idMeta,
-        assigned_responder_id.isAcceptableOrUnknown(
+        _assignedResponderIdMeta,
+        assignedResponderId.isAcceptableOrUnknown(
           data['assigned_responder_id']!,
-          _assigned_responder_idMeta,
+          _assignedResponderIdMeta,
         ),
       );
     }
@@ -223,50 +220,47 @@ class $IncidentsTable extends Incidents
     }
     if (data.containsKey('status_enum')) {
       context.handle(
-        _status_enumMeta,
-        status_enum.isAcceptableOrUnknown(
-          data['status_enum']!,
-          _status_enumMeta,
-        ),
+        _statusEnumMeta,
+        statusEnum.isAcceptableOrUnknown(data['status_enum']!, _statusEnumMeta),
       );
     } else if (isInserting) {
-      context.missing(_status_enumMeta);
+      context.missing(_statusEnumMeta);
     }
     if (data.containsKey('client_id')) {
       context.handle(
-        _client_idMeta,
-        client_id.isAcceptableOrUnknown(data['client_id']!, _client_idMeta),
+        _clientIdMeta,
+        clientId.isAcceptableOrUnknown(data['client_id']!, _clientIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_client_idMeta);
+      context.missing(_clientIdMeta);
     }
     if (data.containsKey('sequence_num')) {
       context.handle(
-        _sequence_numMeta,
-        sequence_num.isAcceptableOrUnknown(
+        _sequenceNumMeta,
+        sequenceNum.isAcceptableOrUnknown(
           data['sequence_num']!,
-          _sequence_numMeta,
+          _sequenceNumMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_sequence_numMeta);
+      context.missing(_sequenceNumMeta);
     }
     if (data.containsKey('deleted_flag')) {
       context.handle(
-        _deleted_flagMeta,
-        deleted_flag.isAcceptableOrUnknown(
+        _deletedFlagMeta,
+        deletedFlag.isAcceptableOrUnknown(
           data['deleted_flag']!,
-          _deleted_flagMeta,
+          _deletedFlagMeta,
         ),
       );
     }
     if (data.containsKey('updated_at')) {
       context.handle(
-        _updated_atMeta,
-        updated_at.isAcceptableOrUnknown(data['updated_at']!, _updated_atMeta),
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     } else if (isInserting) {
-      context.missing(_updated_atMeta);
+      context.missing(_updatedAtMeta);
     }
     return context;
   }
@@ -281,7 +275,7 @@ class $IncidentsTable extends Incidents
         DriftSqlType.string,
         data['${effectivePrefix}id'],
       )!,
-      reporter_id: attachedDatabase.typeMapping.read(
+      reporterId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}reporter_id'],
       )!,
@@ -297,7 +291,7 @@ class $IncidentsTable extends Incidents
         DriftSqlType.double,
         data['${effectivePrefix}lon'],
       )!,
-      assigned_responder_id: attachedDatabase.typeMapping.read(
+      assignedResponderId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}assigned_responder_id'],
       ),
@@ -305,23 +299,23 @@ class $IncidentsTable extends Incidents
         DriftSqlType.string,
         data['${effectivePrefix}priority'],
       )!,
-      status_enum: attachedDatabase.typeMapping.read(
+      statusEnum: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}status_enum'],
       )!,
-      client_id: attachedDatabase.typeMapping.read(
+      clientId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}client_id'],
       )!,
-      sequence_num: attachedDatabase.typeMapping.read(
+      sequenceNum: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sequence_num'],
       )!,
-      deleted_flag: attachedDatabase.typeMapping.read(
+      deletedFlag: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}deleted_flag'],
       )!,
-      updated_at: attachedDatabase.typeMapping.read(
+      updatedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
@@ -336,67 +330,67 @@ class $IncidentsTable extends Incidents
 
 class Incident extends DataClass implements Insertable<Incident> {
   final String id;
-  final String reporter_id;
+  final String reporterId;
   final String type;
   final double lat;
   final double lon;
-  final String? assigned_responder_id;
+  final String? assignedResponderId;
   final String priority;
-  final String status_enum;
-  final String client_id;
-  final int sequence_num;
-  final bool deleted_flag;
-  final DateTime updated_at;
+  final String statusEnum;
+  final String clientId;
+  final int sequenceNum;
+  final bool deletedFlag;
+  final DateTime updatedAt;
   const Incident({
     required this.id,
-    required this.reporter_id,
+    required this.reporterId,
     required this.type,
     required this.lat,
     required this.lon,
-    this.assigned_responder_id,
+    this.assignedResponderId,
     required this.priority,
-    required this.status_enum,
-    required this.client_id,
-    required this.sequence_num,
-    required this.deleted_flag,
-    required this.updated_at,
+    required this.statusEnum,
+    required this.clientId,
+    required this.sequenceNum,
+    required this.deletedFlag,
+    required this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
-    map['reporter_id'] = Variable<String>(reporter_id);
+    map['reporter_id'] = Variable<String>(reporterId);
     map['type'] = Variable<String>(type);
     map['lat'] = Variable<double>(lat);
     map['lon'] = Variable<double>(lon);
-    if (!nullToAbsent || assigned_responder_id != null) {
-      map['assigned_responder_id'] = Variable<String>(assigned_responder_id);
+    if (!nullToAbsent || assignedResponderId != null) {
+      map['assigned_responder_id'] = Variable<String>(assignedResponderId);
     }
     map['priority'] = Variable<String>(priority);
-    map['status_enum'] = Variable<String>(status_enum);
-    map['client_id'] = Variable<String>(client_id);
-    map['sequence_num'] = Variable<int>(sequence_num);
-    map['deleted_flag'] = Variable<bool>(deleted_flag);
-    map['updated_at'] = Variable<DateTime>(updated_at);
+    map['status_enum'] = Variable<String>(statusEnum);
+    map['client_id'] = Variable<String>(clientId);
+    map['sequence_num'] = Variable<int>(sequenceNum);
+    map['deleted_flag'] = Variable<bool>(deletedFlag);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
   }
 
   IncidentsCompanion toCompanion(bool nullToAbsent) {
     return IncidentsCompanion(
       id: Value(id),
-      reporter_id: Value(reporter_id),
+      reporterId: Value(reporterId),
       type: Value(type),
       lat: Value(lat),
       lon: Value(lon),
-      assigned_responder_id: assigned_responder_id == null && nullToAbsent
+      assignedResponderId: assignedResponderId == null && nullToAbsent
           ? const Value.absent()
-          : Value(assigned_responder_id),
+          : Value(assignedResponderId),
       priority: Value(priority),
-      status_enum: Value(status_enum),
-      client_id: Value(client_id),
-      sequence_num: Value(sequence_num),
-      deleted_flag: Value(deleted_flag),
-      updated_at: Value(updated_at),
+      statusEnum: Value(statusEnum),
+      clientId: Value(clientId),
+      sequenceNum: Value(sequenceNum),
+      deletedFlag: Value(deletedFlag),
+      updatedAt: Value(updatedAt),
     );
   }
 
@@ -407,19 +401,19 @@ class Incident extends DataClass implements Insertable<Incident> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Incident(
       id: serializer.fromJson<String>(json['id']),
-      reporter_id: serializer.fromJson<String>(json['reporter_id']),
+      reporterId: serializer.fromJson<String>(json['reporterId']),
       type: serializer.fromJson<String>(json['type']),
       lat: serializer.fromJson<double>(json['lat']),
       lon: serializer.fromJson<double>(json['lon']),
-      assigned_responder_id: serializer.fromJson<String?>(
-        json['assigned_responder_id'],
+      assignedResponderId: serializer.fromJson<String?>(
+        json['assignedResponderId'],
       ),
       priority: serializer.fromJson<String>(json['priority']),
-      status_enum: serializer.fromJson<String>(json['status_enum']),
-      client_id: serializer.fromJson<String>(json['client_id']),
-      sequence_num: serializer.fromJson<int>(json['sequence_num']),
-      deleted_flag: serializer.fromJson<bool>(json['deleted_flag']),
-      updated_at: serializer.fromJson<DateTime>(json['updated_at']),
+      statusEnum: serializer.fromJson<String>(json['statusEnum']),
+      clientId: serializer.fromJson<String>(json['clientId']),
+      sequenceNum: serializer.fromJson<int>(json['sequenceNum']),
+      deletedFlag: serializer.fromJson<bool>(json['deletedFlag']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
   }
   @override
@@ -427,77 +421,73 @@ class Incident extends DataClass implements Insertable<Incident> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
-      'reporter_id': serializer.toJson<String>(reporter_id),
+      'reporterId': serializer.toJson<String>(reporterId),
       'type': serializer.toJson<String>(type),
       'lat': serializer.toJson<double>(lat),
       'lon': serializer.toJson<double>(lon),
-      'assigned_responder_id': serializer.toJson<String?>(
-        assigned_responder_id,
-      ),
+      'assignedResponderId': serializer.toJson<String?>(assignedResponderId),
       'priority': serializer.toJson<String>(priority),
-      'status_enum': serializer.toJson<String>(status_enum),
-      'client_id': serializer.toJson<String>(client_id),
-      'sequence_num': serializer.toJson<int>(sequence_num),
-      'deleted_flag': serializer.toJson<bool>(deleted_flag),
-      'updated_at': serializer.toJson<DateTime>(updated_at),
+      'statusEnum': serializer.toJson<String>(statusEnum),
+      'clientId': serializer.toJson<String>(clientId),
+      'sequenceNum': serializer.toJson<int>(sequenceNum),
+      'deletedFlag': serializer.toJson<bool>(deletedFlag),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
   }
 
   Incident copyWith({
     String? id,
-    String? reporter_id,
+    String? reporterId,
     String? type,
     double? lat,
     double? lon,
-    Value<String?> assigned_responder_id = const Value.absent(),
+    Value<String?> assignedResponderId = const Value.absent(),
     String? priority,
-    String? status_enum,
-    String? client_id,
-    int? sequence_num,
-    bool? deleted_flag,
-    DateTime? updated_at,
+    String? statusEnum,
+    String? clientId,
+    int? sequenceNum,
+    bool? deletedFlag,
+    DateTime? updatedAt,
   }) => Incident(
     id: id ?? this.id,
-    reporter_id: reporter_id ?? this.reporter_id,
+    reporterId: reporterId ?? this.reporterId,
     type: type ?? this.type,
     lat: lat ?? this.lat,
     lon: lon ?? this.lon,
-    assigned_responder_id: assigned_responder_id.present
-        ? assigned_responder_id.value
-        : this.assigned_responder_id,
+    assignedResponderId: assignedResponderId.present
+        ? assignedResponderId.value
+        : this.assignedResponderId,
     priority: priority ?? this.priority,
-    status_enum: status_enum ?? this.status_enum,
-    client_id: client_id ?? this.client_id,
-    sequence_num: sequence_num ?? this.sequence_num,
-    deleted_flag: deleted_flag ?? this.deleted_flag,
-    updated_at: updated_at ?? this.updated_at,
+    statusEnum: statusEnum ?? this.statusEnum,
+    clientId: clientId ?? this.clientId,
+    sequenceNum: sequenceNum ?? this.sequenceNum,
+    deletedFlag: deletedFlag ?? this.deletedFlag,
+    updatedAt: updatedAt ?? this.updatedAt,
   );
   Incident copyWithCompanion(IncidentsCompanion data) {
     return Incident(
       id: data.id.present ? data.id.value : this.id,
-      reporter_id: data.reporter_id.present
-          ? data.reporter_id.value
-          : this.reporter_id,
+      reporterId: data.reporterId.present
+          ? data.reporterId.value
+          : this.reporterId,
       type: data.type.present ? data.type.value : this.type,
       lat: data.lat.present ? data.lat.value : this.lat,
       lon: data.lon.present ? data.lon.value : this.lon,
-      assigned_responder_id: data.assigned_responder_id.present
-          ? data.assigned_responder_id.value
-          : this.assigned_responder_id,
+      assignedResponderId: data.assignedResponderId.present
+          ? data.assignedResponderId.value
+          : this.assignedResponderId,
       priority: data.priority.present ? data.priority.value : this.priority,
-      status_enum: data.status_enum.present
-          ? data.status_enum.value
-          : this.status_enum,
-      client_id: data.client_id.present ? data.client_id.value : this.client_id,
-      sequence_num: data.sequence_num.present
-          ? data.sequence_num.value
-          : this.sequence_num,
-      deleted_flag: data.deleted_flag.present
-          ? data.deleted_flag.value
-          : this.deleted_flag,
-      updated_at: data.updated_at.present
-          ? data.updated_at.value
-          : this.updated_at,
+      statusEnum: data.statusEnum.present
+          ? data.statusEnum.value
+          : this.statusEnum,
+      clientId: data.clientId.present ? data.clientId.value : this.clientId,
+      sequenceNum: data.sequenceNum.present
+          ? data.sequenceNum.value
+          : this.sequenceNum,
+      deletedFlag: data.deletedFlag.present
+          ? data.deletedFlag.value
+          : this.deletedFlag,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -505,17 +495,17 @@ class Incident extends DataClass implements Insertable<Incident> {
   String toString() {
     return (StringBuffer('Incident(')
           ..write('id: $id, ')
-          ..write('reporter_id: $reporter_id, ')
+          ..write('reporterId: $reporterId, ')
           ..write('type: $type, ')
           ..write('lat: $lat, ')
           ..write('lon: $lon, ')
-          ..write('assigned_responder_id: $assigned_responder_id, ')
+          ..write('assignedResponderId: $assignedResponderId, ')
           ..write('priority: $priority, ')
-          ..write('status_enum: $status_enum, ')
-          ..write('client_id: $client_id, ')
-          ..write('sequence_num: $sequence_num, ')
-          ..write('deleted_flag: $deleted_flag, ')
-          ..write('updated_at: $updated_at')
+          ..write('statusEnum: $statusEnum, ')
+          ..write('clientId: $clientId, ')
+          ..write('sequenceNum: $sequenceNum, ')
+          ..write('deletedFlag: $deletedFlag, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -523,151 +513,150 @@ class Incident extends DataClass implements Insertable<Incident> {
   @override
   int get hashCode => Object.hash(
     id,
-    reporter_id,
+    reporterId,
     type,
     lat,
     lon,
-    assigned_responder_id,
+    assignedResponderId,
     priority,
-    status_enum,
-    client_id,
-    sequence_num,
-    deleted_flag,
-    updated_at,
+    statusEnum,
+    clientId,
+    sequenceNum,
+    deletedFlag,
+    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Incident &&
           other.id == this.id &&
-          other.reporter_id == this.reporter_id &&
+          other.reporterId == this.reporterId &&
           other.type == this.type &&
           other.lat == this.lat &&
           other.lon == this.lon &&
-          other.assigned_responder_id == this.assigned_responder_id &&
+          other.assignedResponderId == this.assignedResponderId &&
           other.priority == this.priority &&
-          other.status_enum == this.status_enum &&
-          other.client_id == this.client_id &&
-          other.sequence_num == this.sequence_num &&
-          other.deleted_flag == this.deleted_flag &&
-          other.updated_at == this.updated_at);
+          other.statusEnum == this.statusEnum &&
+          other.clientId == this.clientId &&
+          other.sequenceNum == this.sequenceNum &&
+          other.deletedFlag == this.deletedFlag &&
+          other.updatedAt == this.updatedAt);
 }
 
 class IncidentsCompanion extends UpdateCompanion<Incident> {
   final Value<String> id;
-  final Value<String> reporter_id;
+  final Value<String> reporterId;
   final Value<String> type;
   final Value<double> lat;
   final Value<double> lon;
-  final Value<String?> assigned_responder_id;
+  final Value<String?> assignedResponderId;
   final Value<String> priority;
-  final Value<String> status_enum;
-  final Value<String> client_id;
-  final Value<int> sequence_num;
-  final Value<bool> deleted_flag;
-  final Value<DateTime> updated_at;
+  final Value<String> statusEnum;
+  final Value<String> clientId;
+  final Value<int> sequenceNum;
+  final Value<bool> deletedFlag;
+  final Value<DateTime> updatedAt;
   final Value<int> rowid;
   const IncidentsCompanion({
     this.id = const Value.absent(),
-    this.reporter_id = const Value.absent(),
+    this.reporterId = const Value.absent(),
     this.type = const Value.absent(),
     this.lat = const Value.absent(),
     this.lon = const Value.absent(),
-    this.assigned_responder_id = const Value.absent(),
+    this.assignedResponderId = const Value.absent(),
     this.priority = const Value.absent(),
-    this.status_enum = const Value.absent(),
-    this.client_id = const Value.absent(),
-    this.sequence_num = const Value.absent(),
-    this.deleted_flag = const Value.absent(),
-    this.updated_at = const Value.absent(),
+    this.statusEnum = const Value.absent(),
+    this.clientId = const Value.absent(),
+    this.sequenceNum = const Value.absent(),
+    this.deletedFlag = const Value.absent(),
+    this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   IncidentsCompanion.insert({
     required String id,
-    required String reporter_id,
+    required String reporterId,
     required String type,
     required double lat,
     required double lon,
-    this.assigned_responder_id = const Value.absent(),
+    this.assignedResponderId = const Value.absent(),
     required String priority,
-    required String status_enum,
-    required String client_id,
-    required int sequence_num,
-    this.deleted_flag = const Value.absent(),
-    required DateTime updated_at,
+    required String statusEnum,
+    required String clientId,
+    required int sequenceNum,
+    this.deletedFlag = const Value.absent(),
+    required DateTime updatedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
-       reporter_id = Value(reporter_id),
+       reporterId = Value(reporterId),
        type = Value(type),
        lat = Value(lat),
        lon = Value(lon),
        priority = Value(priority),
-       status_enum = Value(status_enum),
-       client_id = Value(client_id),
-       sequence_num = Value(sequence_num),
-       updated_at = Value(updated_at);
+       statusEnum = Value(statusEnum),
+       clientId = Value(clientId),
+       sequenceNum = Value(sequenceNum),
+       updatedAt = Value(updatedAt);
   static Insertable<Incident> custom({
     Expression<String>? id,
-    Expression<String>? reporter_id,
+    Expression<String>? reporterId,
     Expression<String>? type,
     Expression<double>? lat,
     Expression<double>? lon,
-    Expression<String>? assigned_responder_id,
+    Expression<String>? assignedResponderId,
     Expression<String>? priority,
-    Expression<String>? status_enum,
-    Expression<String>? client_id,
-    Expression<int>? sequence_num,
-    Expression<bool>? deleted_flag,
-    Expression<DateTime>? updated_at,
+    Expression<String>? statusEnum,
+    Expression<String>? clientId,
+    Expression<int>? sequenceNum,
+    Expression<bool>? deletedFlag,
+    Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (reporter_id != null) 'reporter_id': reporter_id,
+      if (reporterId != null) 'reporter_id': reporterId,
       if (type != null) 'type': type,
       if (lat != null) 'lat': lat,
       if (lon != null) 'lon': lon,
-      if (assigned_responder_id != null)
-        'assigned_responder_id': assigned_responder_id,
+      if (assignedResponderId != null)
+        'assigned_responder_id': assignedResponderId,
       if (priority != null) 'priority': priority,
-      if (status_enum != null) 'status_enum': status_enum,
-      if (client_id != null) 'client_id': client_id,
-      if (sequence_num != null) 'sequence_num': sequence_num,
-      if (deleted_flag != null) 'deleted_flag': deleted_flag,
-      if (updated_at != null) 'updated_at': updated_at,
+      if (statusEnum != null) 'status_enum': statusEnum,
+      if (clientId != null) 'client_id': clientId,
+      if (sequenceNum != null) 'sequence_num': sequenceNum,
+      if (deletedFlag != null) 'deleted_flag': deletedFlag,
+      if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
   IncidentsCompanion copyWith({
     Value<String>? id,
-    Value<String>? reporter_id,
+    Value<String>? reporterId,
     Value<String>? type,
     Value<double>? lat,
     Value<double>? lon,
-    Value<String?>? assigned_responder_id,
+    Value<String?>? assignedResponderId,
     Value<String>? priority,
-    Value<String>? status_enum,
-    Value<String>? client_id,
-    Value<int>? sequence_num,
-    Value<bool>? deleted_flag,
-    Value<DateTime>? updated_at,
+    Value<String>? statusEnum,
+    Value<String>? clientId,
+    Value<int>? sequenceNum,
+    Value<bool>? deletedFlag,
+    Value<DateTime>? updatedAt,
     Value<int>? rowid,
   }) {
     return IncidentsCompanion(
       id: id ?? this.id,
-      reporter_id: reporter_id ?? this.reporter_id,
+      reporterId: reporterId ?? this.reporterId,
       type: type ?? this.type,
       lat: lat ?? this.lat,
       lon: lon ?? this.lon,
-      assigned_responder_id:
-          assigned_responder_id ?? this.assigned_responder_id,
+      assignedResponderId: assignedResponderId ?? this.assignedResponderId,
       priority: priority ?? this.priority,
-      status_enum: status_enum ?? this.status_enum,
-      client_id: client_id ?? this.client_id,
-      sequence_num: sequence_num ?? this.sequence_num,
-      deleted_flag: deleted_flag ?? this.deleted_flag,
-      updated_at: updated_at ?? this.updated_at,
+      statusEnum: statusEnum ?? this.statusEnum,
+      clientId: clientId ?? this.clientId,
+      sequenceNum: sequenceNum ?? this.sequenceNum,
+      deletedFlag: deletedFlag ?? this.deletedFlag,
+      updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -678,8 +667,8 @@ class IncidentsCompanion extends UpdateCompanion<Incident> {
     if (id.present) {
       map['id'] = Variable<String>(id.value);
     }
-    if (reporter_id.present) {
-      map['reporter_id'] = Variable<String>(reporter_id.value);
+    if (reporterId.present) {
+      map['reporter_id'] = Variable<String>(reporterId.value);
     }
     if (type.present) {
       map['type'] = Variable<String>(type.value);
@@ -690,28 +679,28 @@ class IncidentsCompanion extends UpdateCompanion<Incident> {
     if (lon.present) {
       map['lon'] = Variable<double>(lon.value);
     }
-    if (assigned_responder_id.present) {
+    if (assignedResponderId.present) {
       map['assigned_responder_id'] = Variable<String>(
-        assigned_responder_id.value,
+        assignedResponderId.value,
       );
     }
     if (priority.present) {
       map['priority'] = Variable<String>(priority.value);
     }
-    if (status_enum.present) {
-      map['status_enum'] = Variable<String>(status_enum.value);
+    if (statusEnum.present) {
+      map['status_enum'] = Variable<String>(statusEnum.value);
     }
-    if (client_id.present) {
-      map['client_id'] = Variable<String>(client_id.value);
+    if (clientId.present) {
+      map['client_id'] = Variable<String>(clientId.value);
     }
-    if (sequence_num.present) {
-      map['sequence_num'] = Variable<int>(sequence_num.value);
+    if (sequenceNum.present) {
+      map['sequence_num'] = Variable<int>(sequenceNum.value);
     }
-    if (deleted_flag.present) {
-      map['deleted_flag'] = Variable<bool>(deleted_flag.value);
+    if (deletedFlag.present) {
+      map['deleted_flag'] = Variable<bool>(deletedFlag.value);
     }
-    if (updated_at.present) {
-      map['updated_at'] = Variable<DateTime>(updated_at.value);
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -723,17 +712,17 @@ class IncidentsCompanion extends UpdateCompanion<Incident> {
   String toString() {
     return (StringBuffer('IncidentsCompanion(')
           ..write('id: $id, ')
-          ..write('reporter_id: $reporter_id, ')
+          ..write('reporterId: $reporterId, ')
           ..write('type: $type, ')
           ..write('lat: $lat, ')
           ..write('lon: $lon, ')
-          ..write('assigned_responder_id: $assigned_responder_id, ')
+          ..write('assignedResponderId: $assignedResponderId, ')
           ..write('priority: $priority, ')
-          ..write('status_enum: $status_enum, ')
-          ..write('client_id: $client_id, ')
-          ..write('sequence_num: $sequence_num, ')
-          ..write('deleted_flag: $deleted_flag, ')
-          ..write('updated_at: $updated_at, ')
+          ..write('statusEnum: $statusEnum, ')
+          ..write('clientId: $clientId, ')
+          ..write('sequenceNum: $sequenceNum, ')
+          ..write('deletedFlag: $deletedFlag, ')
+          ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -759,22 +748,22 @@ class $SyncQueueTable extends SyncQueue
       'PRIMARY KEY AUTOINCREMENT',
     ),
   );
-  static const VerificationMeta _entity_typeMeta = const VerificationMeta(
-    'entity_type',
+  static const VerificationMeta _entityTypeMeta = const VerificationMeta(
+    'entityType',
   );
   @override
-  late final GeneratedColumn<String> entity_type = GeneratedColumn<String>(
+  late final GeneratedColumn<String> entityType = GeneratedColumn<String>(
     'entity_type',
     aliasedName,
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _entity_idMeta = const VerificationMeta(
-    'entity_id',
+  static const VerificationMeta _entityIdMeta = const VerificationMeta(
+    'entityId',
   );
   @override
-  late final GeneratedColumn<String> entity_id = GeneratedColumn<String>(
+  late final GeneratedColumn<String> entityId = GeneratedColumn<String>(
     'entity_id',
     aliasedName,
     false,
@@ -801,11 +790,11 @@ class $SyncQueueTable extends SyncQueue
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
-  static const VerificationMeta _sequence_numMeta = const VerificationMeta(
-    'sequence_num',
+  static const VerificationMeta _sequenceNumMeta = const VerificationMeta(
+    'sequenceNum',
   );
   @override
-  late final GeneratedColumn<int> sequence_num = GeneratedColumn<int>(
+  late final GeneratedColumn<int> sequenceNum = GeneratedColumn<int>(
     'sequence_num',
     aliasedName,
     false,
@@ -836,11 +825,11 @@ class $SyncQueueTable extends SyncQueue
   @override
   List<GeneratedColumn> get $columns => [
     id,
-    entity_type,
-    entity_id,
+    entityType,
+    entityId,
     operation,
     data,
-    sequence_num,
+    sequenceNum,
     timestamp,
     status,
   ];
@@ -861,22 +850,19 @@ class $SyncQueueTable extends SyncQueue
     }
     if (data.containsKey('entity_type')) {
       context.handle(
-        _entity_typeMeta,
-        entity_type.isAcceptableOrUnknown(
-          data['entity_type']!,
-          _entity_typeMeta,
-        ),
+        _entityTypeMeta,
+        entityType.isAcceptableOrUnknown(data['entity_type']!, _entityTypeMeta),
       );
     } else if (isInserting) {
-      context.missing(_entity_typeMeta);
+      context.missing(_entityTypeMeta);
     }
     if (data.containsKey('entity_id')) {
       context.handle(
-        _entity_idMeta,
-        entity_id.isAcceptableOrUnknown(data['entity_id']!, _entity_idMeta),
+        _entityIdMeta,
+        entityId.isAcceptableOrUnknown(data['entity_id']!, _entityIdMeta),
       );
     } else if (isInserting) {
-      context.missing(_entity_idMeta);
+      context.missing(_entityIdMeta);
     }
     if (data.containsKey('operation')) {
       context.handle(
@@ -896,14 +882,14 @@ class $SyncQueueTable extends SyncQueue
     }
     if (data.containsKey('sequence_num')) {
       context.handle(
-        _sequence_numMeta,
-        sequence_num.isAcceptableOrUnknown(
+        _sequenceNumMeta,
+        sequenceNum.isAcceptableOrUnknown(
           data['sequence_num']!,
-          _sequence_numMeta,
+          _sequenceNumMeta,
         ),
       );
     } else if (isInserting) {
-      context.missing(_sequence_numMeta);
+      context.missing(_sequenceNumMeta);
     }
     if (data.containsKey('timestamp')) {
       context.handle(
@@ -932,11 +918,11 @@ class $SyncQueueTable extends SyncQueue
         DriftSqlType.int,
         data['${effectivePrefix}id'],
       )!,
-      entity_type: attachedDatabase.typeMapping.read(
+      entityType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}entity_type'],
       )!,
-      entity_id: attachedDatabase.typeMapping.read(
+      entityId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}entity_id'],
       )!,
@@ -948,7 +934,7 @@ class $SyncQueueTable extends SyncQueue
         DriftSqlType.string,
         data['${effectivePrefix}data'],
       )!,
-      sequence_num: attachedDatabase.typeMapping.read(
+      sequenceNum: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}sequence_num'],
       )!,
@@ -971,20 +957,20 @@ class $SyncQueueTable extends SyncQueue
 
 class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
   final int id;
-  final String entity_type;
-  final String entity_id;
+  final String entityType;
+  final String entityId;
   final String operation;
   final String data;
-  final int sequence_num;
+  final int sequenceNum;
   final DateTime timestamp;
   final String status;
   const SyncQueueData({
     required this.id,
-    required this.entity_type,
-    required this.entity_id,
+    required this.entityType,
+    required this.entityId,
     required this.operation,
     required this.data,
-    required this.sequence_num,
+    required this.sequenceNum,
     required this.timestamp,
     required this.status,
   });
@@ -992,11 +978,11 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    map['entity_type'] = Variable<String>(entity_type);
-    map['entity_id'] = Variable<String>(entity_id);
+    map['entity_type'] = Variable<String>(entityType);
+    map['entity_id'] = Variable<String>(entityId);
     map['operation'] = Variable<String>(operation);
     map['data'] = Variable<String>(data);
-    map['sequence_num'] = Variable<int>(sequence_num);
+    map['sequence_num'] = Variable<int>(sequenceNum);
     map['timestamp'] = Variable<DateTime>(timestamp);
     map['status'] = Variable<String>(status);
     return map;
@@ -1005,11 +991,11 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
   SyncQueueCompanion toCompanion(bool nullToAbsent) {
     return SyncQueueCompanion(
       id: Value(id),
-      entity_type: Value(entity_type),
-      entity_id: Value(entity_id),
+      entityType: Value(entityType),
+      entityId: Value(entityId),
       operation: Value(operation),
       data: Value(data),
-      sequence_num: Value(sequence_num),
+      sequenceNum: Value(sequenceNum),
       timestamp: Value(timestamp),
       status: Value(status),
     );
@@ -1022,11 +1008,11 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return SyncQueueData(
       id: serializer.fromJson<int>(json['id']),
-      entity_type: serializer.fromJson<String>(json['entity_type']),
-      entity_id: serializer.fromJson<String>(json['entity_id']),
+      entityType: serializer.fromJson<String>(json['entityType']),
+      entityId: serializer.fromJson<String>(json['entityId']),
       operation: serializer.fromJson<String>(json['operation']),
       data: serializer.fromJson<String>(json['data']),
-      sequence_num: serializer.fromJson<int>(json['sequence_num']),
+      sequenceNum: serializer.fromJson<int>(json['sequenceNum']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       status: serializer.fromJson<String>(json['status']),
     );
@@ -1036,11 +1022,11 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'entity_type': serializer.toJson<String>(entity_type),
-      'entity_id': serializer.toJson<String>(entity_id),
+      'entityType': serializer.toJson<String>(entityType),
+      'entityId': serializer.toJson<String>(entityId),
       'operation': serializer.toJson<String>(operation),
       'data': serializer.toJson<String>(data),
-      'sequence_num': serializer.toJson<int>(sequence_num),
+      'sequenceNum': serializer.toJson<int>(sequenceNum),
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'status': serializer.toJson<String>(status),
     };
@@ -1048,35 +1034,35 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
 
   SyncQueueData copyWith({
     int? id,
-    String? entity_type,
-    String? entity_id,
+    String? entityType,
+    String? entityId,
     String? operation,
     String? data,
-    int? sequence_num,
+    int? sequenceNum,
     DateTime? timestamp,
     String? status,
   }) => SyncQueueData(
     id: id ?? this.id,
-    entity_type: entity_type ?? this.entity_type,
-    entity_id: entity_id ?? this.entity_id,
+    entityType: entityType ?? this.entityType,
+    entityId: entityId ?? this.entityId,
     operation: operation ?? this.operation,
     data: data ?? this.data,
-    sequence_num: sequence_num ?? this.sequence_num,
+    sequenceNum: sequenceNum ?? this.sequenceNum,
     timestamp: timestamp ?? this.timestamp,
     status: status ?? this.status,
   );
   SyncQueueData copyWithCompanion(SyncQueueCompanion data) {
     return SyncQueueData(
       id: data.id.present ? data.id.value : this.id,
-      entity_type: data.entity_type.present
-          ? data.entity_type.value
-          : this.entity_type,
-      entity_id: data.entity_id.present ? data.entity_id.value : this.entity_id,
+      entityType: data.entityType.present
+          ? data.entityType.value
+          : this.entityType,
+      entityId: data.entityId.present ? data.entityId.value : this.entityId,
       operation: data.operation.present ? data.operation.value : this.operation,
       data: data.data.present ? data.data.value : this.data,
-      sequence_num: data.sequence_num.present
-          ? data.sequence_num.value
-          : this.sequence_num,
+      sequenceNum: data.sequenceNum.present
+          ? data.sequenceNum.value
+          : this.sequenceNum,
       timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
       status: data.status.present ? data.status.value : this.status,
     );
@@ -1086,11 +1072,11 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
   String toString() {
     return (StringBuffer('SyncQueueData(')
           ..write('id: $id, ')
-          ..write('entity_type: $entity_type, ')
-          ..write('entity_id: $entity_id, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
           ..write('operation: $operation, ')
           ..write('data: $data, ')
-          ..write('sequence_num: $sequence_num, ')
+          ..write('sequenceNum: $sequenceNum, ')
           ..write('timestamp: $timestamp, ')
           ..write('status: $status')
           ..write(')'))
@@ -1100,11 +1086,11 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
   @override
   int get hashCode => Object.hash(
     id,
-    entity_type,
-    entity_id,
+    entityType,
+    entityId,
     operation,
     data,
-    sequence_num,
+    sequenceNum,
     timestamp,
     status,
   );
@@ -1113,66 +1099,66 @@ class SyncQueueData extends DataClass implements Insertable<SyncQueueData> {
       identical(this, other) ||
       (other is SyncQueueData &&
           other.id == this.id &&
-          other.entity_type == this.entity_type &&
-          other.entity_id == this.entity_id &&
+          other.entityType == this.entityType &&
+          other.entityId == this.entityId &&
           other.operation == this.operation &&
           other.data == this.data &&
-          other.sequence_num == this.sequence_num &&
+          other.sequenceNum == this.sequenceNum &&
           other.timestamp == this.timestamp &&
           other.status == this.status);
 }
 
 class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
   final Value<int> id;
-  final Value<String> entity_type;
-  final Value<String> entity_id;
+  final Value<String> entityType;
+  final Value<String> entityId;
   final Value<String> operation;
   final Value<String> data;
-  final Value<int> sequence_num;
+  final Value<int> sequenceNum;
   final Value<DateTime> timestamp;
   final Value<String> status;
   const SyncQueueCompanion({
     this.id = const Value.absent(),
-    this.entity_type = const Value.absent(),
-    this.entity_id = const Value.absent(),
+    this.entityType = const Value.absent(),
+    this.entityId = const Value.absent(),
     this.operation = const Value.absent(),
     this.data = const Value.absent(),
-    this.sequence_num = const Value.absent(),
+    this.sequenceNum = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.status = const Value.absent(),
   });
   SyncQueueCompanion.insert({
     this.id = const Value.absent(),
-    required String entity_type,
-    required String entity_id,
+    required String entityType,
+    required String entityId,
     required String operation,
     required String data,
-    required int sequence_num,
+    required int sequenceNum,
     required DateTime timestamp,
     this.status = const Value.absent(),
-  }) : entity_type = Value(entity_type),
-       entity_id = Value(entity_id),
+  }) : entityType = Value(entityType),
+       entityId = Value(entityId),
        operation = Value(operation),
        data = Value(data),
-       sequence_num = Value(sequence_num),
+       sequenceNum = Value(sequenceNum),
        timestamp = Value(timestamp);
   static Insertable<SyncQueueData> custom({
     Expression<int>? id,
-    Expression<String>? entity_type,
-    Expression<String>? entity_id,
+    Expression<String>? entityType,
+    Expression<String>? entityId,
     Expression<String>? operation,
     Expression<String>? data,
-    Expression<int>? sequence_num,
+    Expression<int>? sequenceNum,
     Expression<DateTime>? timestamp,
     Expression<String>? status,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (entity_type != null) 'entity_type': entity_type,
-      if (entity_id != null) 'entity_id': entity_id,
+      if (entityType != null) 'entity_type': entityType,
+      if (entityId != null) 'entity_id': entityId,
       if (operation != null) 'operation': operation,
       if (data != null) 'data': data,
-      if (sequence_num != null) 'sequence_num': sequence_num,
+      if (sequenceNum != null) 'sequence_num': sequenceNum,
       if (timestamp != null) 'timestamp': timestamp,
       if (status != null) 'status': status,
     });
@@ -1180,21 +1166,21 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
 
   SyncQueueCompanion copyWith({
     Value<int>? id,
-    Value<String>? entity_type,
-    Value<String>? entity_id,
+    Value<String>? entityType,
+    Value<String>? entityId,
     Value<String>? operation,
     Value<String>? data,
-    Value<int>? sequence_num,
+    Value<int>? sequenceNum,
     Value<DateTime>? timestamp,
     Value<String>? status,
   }) {
     return SyncQueueCompanion(
       id: id ?? this.id,
-      entity_type: entity_type ?? this.entity_type,
-      entity_id: entity_id ?? this.entity_id,
+      entityType: entityType ?? this.entityType,
+      entityId: entityId ?? this.entityId,
       operation: operation ?? this.operation,
       data: data ?? this.data,
-      sequence_num: sequence_num ?? this.sequence_num,
+      sequenceNum: sequenceNum ?? this.sequenceNum,
       timestamp: timestamp ?? this.timestamp,
       status: status ?? this.status,
     );
@@ -1206,11 +1192,11 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (entity_type.present) {
-      map['entity_type'] = Variable<String>(entity_type.value);
+    if (entityType.present) {
+      map['entity_type'] = Variable<String>(entityType.value);
     }
-    if (entity_id.present) {
-      map['entity_id'] = Variable<String>(entity_id.value);
+    if (entityId.present) {
+      map['entity_id'] = Variable<String>(entityId.value);
     }
     if (operation.present) {
       map['operation'] = Variable<String>(operation.value);
@@ -1218,8 +1204,8 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
     if (data.present) {
       map['data'] = Variable<String>(data.value);
     }
-    if (sequence_num.present) {
-      map['sequence_num'] = Variable<int>(sequence_num.value);
+    if (sequenceNum.present) {
+      map['sequence_num'] = Variable<int>(sequenceNum.value);
     }
     if (timestamp.present) {
       map['timestamp'] = Variable<DateTime>(timestamp.value);
@@ -1234,11 +1220,11 @@ class SyncQueueCompanion extends UpdateCompanion<SyncQueueData> {
   String toString() {
     return (StringBuffer('SyncQueueCompanion(')
           ..write('id: $id, ')
-          ..write('entity_type: $entity_type, ')
-          ..write('entity_id: $entity_id, ')
+          ..write('entityType: $entityType, ')
+          ..write('entityId: $entityId, ')
           ..write('operation: $operation, ')
           ..write('data: $data, ')
-          ..write('sequence_num: $sequence_num, ')
+          ..write('sequenceNum: $sequenceNum, ')
           ..write('timestamp: $timestamp, ')
           ..write('status: $status')
           ..write(')'))
@@ -1261,33 +1247,33 @@ abstract class _$AppDatabase extends GeneratedDatabase {
 typedef $$IncidentsTableCreateCompanionBuilder =
     IncidentsCompanion Function({
       required String id,
-      required String reporter_id,
+      required String reporterId,
       required String type,
       required double lat,
       required double lon,
-      Value<String?> assigned_responder_id,
+      Value<String?> assignedResponderId,
       required String priority,
-      required String status_enum,
-      required String client_id,
-      required int sequence_num,
-      Value<bool> deleted_flag,
-      required DateTime updated_at,
+      required String statusEnum,
+      required String clientId,
+      required int sequenceNum,
+      Value<bool> deletedFlag,
+      required DateTime updatedAt,
       Value<int> rowid,
     });
 typedef $$IncidentsTableUpdateCompanionBuilder =
     IncidentsCompanion Function({
       Value<String> id,
-      Value<String> reporter_id,
+      Value<String> reporterId,
       Value<String> type,
       Value<double> lat,
       Value<double> lon,
-      Value<String?> assigned_responder_id,
+      Value<String?> assignedResponderId,
       Value<String> priority,
-      Value<String> status_enum,
-      Value<String> client_id,
-      Value<int> sequence_num,
-      Value<bool> deleted_flag,
-      Value<DateTime> updated_at,
+      Value<String> statusEnum,
+      Value<String> clientId,
+      Value<int> sequenceNum,
+      Value<bool> deletedFlag,
+      Value<DateTime> updatedAt,
       Value<int> rowid,
     });
 
@@ -1305,8 +1291,8 @@ class $$IncidentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get reporter_id => $composableBuilder(
-    column: $table.reporter_id,
+  ColumnFilters<String> get reporterId => $composableBuilder(
+    column: $table.reporterId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1325,8 +1311,8 @@ class $$IncidentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get assigned_responder_id => $composableBuilder(
-    column: $table.assigned_responder_id,
+  ColumnFilters<String> get assignedResponderId => $composableBuilder(
+    column: $table.assignedResponderId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1335,28 +1321,28 @@ class $$IncidentsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get status_enum => $composableBuilder(
-    column: $table.status_enum,
+  ColumnFilters<String> get statusEnum => $composableBuilder(
+    column: $table.statusEnum,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get client_id => $composableBuilder(
-    column: $table.client_id,
+  ColumnFilters<String> get clientId => $composableBuilder(
+    column: $table.clientId,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get sequence_num => $composableBuilder(
-    column: $table.sequence_num,
+  ColumnFilters<int> get sequenceNum => $composableBuilder(
+    column: $table.sequenceNum,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get deleted_flag => $composableBuilder(
-    column: $table.deleted_flag,
+  ColumnFilters<bool> get deletedFlag => $composableBuilder(
+    column: $table.deletedFlag,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<DateTime> get updated_at => $composableBuilder(
-    column: $table.updated_at,
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1375,8 +1361,8 @@ class $$IncidentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get reporter_id => $composableBuilder(
-    column: $table.reporter_id,
+  ColumnOrderings<String> get reporterId => $composableBuilder(
+    column: $table.reporterId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1395,8 +1381,8 @@ class $$IncidentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get assigned_responder_id => $composableBuilder(
-    column: $table.assigned_responder_id,
+  ColumnOrderings<String> get assignedResponderId => $composableBuilder(
+    column: $table.assignedResponderId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1405,28 +1391,28 @@ class $$IncidentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get status_enum => $composableBuilder(
-    column: $table.status_enum,
+  ColumnOrderings<String> get statusEnum => $composableBuilder(
+    column: $table.statusEnum,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get client_id => $composableBuilder(
-    column: $table.client_id,
+  ColumnOrderings<String> get clientId => $composableBuilder(
+    column: $table.clientId,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get sequence_num => $composableBuilder(
-    column: $table.sequence_num,
+  ColumnOrderings<int> get sequenceNum => $composableBuilder(
+    column: $table.sequenceNum,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get deleted_flag => $composableBuilder(
-    column: $table.deleted_flag,
+  ColumnOrderings<bool> get deletedFlag => $composableBuilder(
+    column: $table.deletedFlag,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<DateTime> get updated_at => $composableBuilder(
-    column: $table.updated_at,
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -1443,8 +1429,8 @@ class $$IncidentsTableAnnotationComposer
   GeneratedColumn<String> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get reporter_id => $composableBuilder(
-    column: $table.reporter_id,
+  GeneratedColumn<String> get reporterId => $composableBuilder(
+    column: $table.reporterId,
     builder: (column) => column,
   );
 
@@ -1457,36 +1443,34 @@ class $$IncidentsTableAnnotationComposer
   GeneratedColumn<double> get lon =>
       $composableBuilder(column: $table.lon, builder: (column) => column);
 
-  GeneratedColumn<String> get assigned_responder_id => $composableBuilder(
-    column: $table.assigned_responder_id,
+  GeneratedColumn<String> get assignedResponderId => $composableBuilder(
+    column: $table.assignedResponderId,
     builder: (column) => column,
   );
 
   GeneratedColumn<String> get priority =>
       $composableBuilder(column: $table.priority, builder: (column) => column);
 
-  GeneratedColumn<String> get status_enum => $composableBuilder(
-    column: $table.status_enum,
+  GeneratedColumn<String> get statusEnum => $composableBuilder(
+    column: $table.statusEnum,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get client_id =>
-      $composableBuilder(column: $table.client_id, builder: (column) => column);
+  GeneratedColumn<String> get clientId =>
+      $composableBuilder(column: $table.clientId, builder: (column) => column);
 
-  GeneratedColumn<int> get sequence_num => $composableBuilder(
-    column: $table.sequence_num,
+  GeneratedColumn<int> get sequenceNum => $composableBuilder(
+    column: $table.sequenceNum,
     builder: (column) => column,
   );
 
-  GeneratedColumn<bool> get deleted_flag => $composableBuilder(
-    column: $table.deleted_flag,
+  GeneratedColumn<bool> get deletedFlag => $composableBuilder(
+    column: $table.deletedFlag,
     builder: (column) => column,
   );
 
-  GeneratedColumn<DateTime> get updated_at => $composableBuilder(
-    column: $table.updated_at,
-    builder: (column) => column,
-  );
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 }
 
 class $$IncidentsTableTableManager
@@ -1518,61 +1502,61 @@ class $$IncidentsTableTableManager
           updateCompanionCallback:
               ({
                 Value<String> id = const Value.absent(),
-                Value<String> reporter_id = const Value.absent(),
+                Value<String> reporterId = const Value.absent(),
                 Value<String> type = const Value.absent(),
                 Value<double> lat = const Value.absent(),
                 Value<double> lon = const Value.absent(),
-                Value<String?> assigned_responder_id = const Value.absent(),
+                Value<String?> assignedResponderId = const Value.absent(),
                 Value<String> priority = const Value.absent(),
-                Value<String> status_enum = const Value.absent(),
-                Value<String> client_id = const Value.absent(),
-                Value<int> sequence_num = const Value.absent(),
-                Value<bool> deleted_flag = const Value.absent(),
-                Value<DateTime> updated_at = const Value.absent(),
+                Value<String> statusEnum = const Value.absent(),
+                Value<String> clientId = const Value.absent(),
+                Value<int> sequenceNum = const Value.absent(),
+                Value<bool> deletedFlag = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => IncidentsCompanion(
                 id: id,
-                reporter_id: reporter_id,
+                reporterId: reporterId,
                 type: type,
                 lat: lat,
                 lon: lon,
-                assigned_responder_id: assigned_responder_id,
+                assignedResponderId: assignedResponderId,
                 priority: priority,
-                status_enum: status_enum,
-                client_id: client_id,
-                sequence_num: sequence_num,
-                deleted_flag: deleted_flag,
-                updated_at: updated_at,
+                statusEnum: statusEnum,
+                clientId: clientId,
+                sequenceNum: sequenceNum,
+                deletedFlag: deletedFlag,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           createCompanionCallback:
               ({
                 required String id,
-                required String reporter_id,
+                required String reporterId,
                 required String type,
                 required double lat,
                 required double lon,
-                Value<String?> assigned_responder_id = const Value.absent(),
+                Value<String?> assignedResponderId = const Value.absent(),
                 required String priority,
-                required String status_enum,
-                required String client_id,
-                required int sequence_num,
-                Value<bool> deleted_flag = const Value.absent(),
-                required DateTime updated_at,
+                required String statusEnum,
+                required String clientId,
+                required int sequenceNum,
+                Value<bool> deletedFlag = const Value.absent(),
+                required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
               }) => IncidentsCompanion.insert(
                 id: id,
-                reporter_id: reporter_id,
+                reporterId: reporterId,
                 type: type,
                 lat: lat,
                 lon: lon,
-                assigned_responder_id: assigned_responder_id,
+                assignedResponderId: assignedResponderId,
                 priority: priority,
-                status_enum: status_enum,
-                client_id: client_id,
-                sequence_num: sequence_num,
-                deleted_flag: deleted_flag,
-                updated_at: updated_at,
+                statusEnum: statusEnum,
+                clientId: clientId,
+                sequenceNum: sequenceNum,
+                deletedFlag: deletedFlag,
+                updatedAt: updatedAt,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -1600,22 +1584,22 @@ typedef $$IncidentsTableProcessedTableManager =
 typedef $$SyncQueueTableCreateCompanionBuilder =
     SyncQueueCompanion Function({
       Value<int> id,
-      required String entity_type,
-      required String entity_id,
+      required String entityType,
+      required String entityId,
       required String operation,
       required String data,
-      required int sequence_num,
+      required int sequenceNum,
       required DateTime timestamp,
       Value<String> status,
     });
 typedef $$SyncQueueTableUpdateCompanionBuilder =
     SyncQueueCompanion Function({
       Value<int> id,
-      Value<String> entity_type,
-      Value<String> entity_id,
+      Value<String> entityType,
+      Value<String> entityId,
       Value<String> operation,
       Value<String> data,
-      Value<int> sequence_num,
+      Value<int> sequenceNum,
       Value<DateTime> timestamp,
       Value<String> status,
     });
@@ -1634,13 +1618,13 @@ class $$SyncQueueTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get entity_type => $composableBuilder(
-    column: $table.entity_type,
+  ColumnFilters<String> get entityType => $composableBuilder(
+    column: $table.entityType,
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get entity_id => $composableBuilder(
-    column: $table.entity_id,
+  ColumnFilters<String> get entityId => $composableBuilder(
+    column: $table.entityId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1654,8 +1638,8 @@ class $$SyncQueueTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<int> get sequence_num => $composableBuilder(
-    column: $table.sequence_num,
+  ColumnFilters<int> get sequenceNum => $composableBuilder(
+    column: $table.sequenceNum,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1684,13 +1668,13 @@ class $$SyncQueueTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get entity_type => $composableBuilder(
-    column: $table.entity_type,
+  ColumnOrderings<String> get entityType => $composableBuilder(
+    column: $table.entityType,
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get entity_id => $composableBuilder(
-    column: $table.entity_id,
+  ColumnOrderings<String> get entityId => $composableBuilder(
+    column: $table.entityId,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1704,8 +1688,8 @@ class $$SyncQueueTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<int> get sequence_num => $composableBuilder(
-    column: $table.sequence_num,
+  ColumnOrderings<int> get sequenceNum => $composableBuilder(
+    column: $table.sequenceNum,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -1732,13 +1716,13 @@ class $$SyncQueueTableAnnotationComposer
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
 
-  GeneratedColumn<String> get entity_type => $composableBuilder(
-    column: $table.entity_type,
+  GeneratedColumn<String> get entityType => $composableBuilder(
+    column: $table.entityType,
     builder: (column) => column,
   );
 
-  GeneratedColumn<String> get entity_id =>
-      $composableBuilder(column: $table.entity_id, builder: (column) => column);
+  GeneratedColumn<String> get entityId =>
+      $composableBuilder(column: $table.entityId, builder: (column) => column);
 
   GeneratedColumn<String> get operation =>
       $composableBuilder(column: $table.operation, builder: (column) => column);
@@ -1746,8 +1730,8 @@ class $$SyncQueueTableAnnotationComposer
   GeneratedColumn<String> get data =>
       $composableBuilder(column: $table.data, builder: (column) => column);
 
-  GeneratedColumn<int> get sequence_num => $composableBuilder(
-    column: $table.sequence_num,
+  GeneratedColumn<int> get sequenceNum => $composableBuilder(
+    column: $table.sequenceNum,
     builder: (column) => column,
   );
 
@@ -1790,40 +1774,40 @@ class $$SyncQueueTableTableManager
           updateCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                Value<String> entity_type = const Value.absent(),
-                Value<String> entity_id = const Value.absent(),
+                Value<String> entityType = const Value.absent(),
+                Value<String> entityId = const Value.absent(),
                 Value<String> operation = const Value.absent(),
                 Value<String> data = const Value.absent(),
-                Value<int> sequence_num = const Value.absent(),
+                Value<int> sequenceNum = const Value.absent(),
                 Value<DateTime> timestamp = const Value.absent(),
                 Value<String> status = const Value.absent(),
               }) => SyncQueueCompanion(
                 id: id,
-                entity_type: entity_type,
-                entity_id: entity_id,
+                entityType: entityType,
+                entityId: entityId,
                 operation: operation,
                 data: data,
-                sequence_num: sequence_num,
+                sequenceNum: sequenceNum,
                 timestamp: timestamp,
                 status: status,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
-                required String entity_type,
-                required String entity_id,
+                required String entityType,
+                required String entityId,
                 required String operation,
                 required String data,
-                required int sequence_num,
+                required int sequenceNum,
                 required DateTime timestamp,
                 Value<String> status = const Value.absent(),
               }) => SyncQueueCompanion.insert(
                 id: id,
-                entity_type: entity_type,
-                entity_id: entity_id,
+                entityType: entityType,
+                entityId: entityId,
                 operation: operation,
                 data: data,
-                sequence_num: sequence_num,
+                sequenceNum: sequenceNum,
                 timestamp: timestamp,
                 status: status,
               ),

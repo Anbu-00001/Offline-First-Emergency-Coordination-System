@@ -8,17 +8,17 @@ part 'database.g.dart';
 
 class Incidents extends Table {
   TextColumn get id => text()();
-  TextColumn get reporter_id => text()();
+  TextColumn get reporterId => text().named('reporter_id')();
   TextColumn get type => text()();
   RealColumn get lat => real()();
   RealColumn get lon => real()();
-  TextColumn get assigned_responder_id => text().nullable()();
+  TextColumn get assignedResponderId => text().named('assigned_responder_id').nullable()();
   TextColumn get priority => text()();
-  TextColumn get status_enum => text()();
-  TextColumn get client_id => text()();
-  IntColumn get sequence_num => integer()();
-  BoolColumn get deleted_flag => boolean().withDefault(const Constant(false))();
-  DateTimeColumn get updated_at => dateTime()();
+  TextColumn get statusEnum => text().named('status_enum')();
+  TextColumn get clientId => text().named('client_id')();
+  IntColumn get sequenceNum => integer().named('sequence_num')();
+  BoolColumn get deletedFlag => boolean().named('deleted_flag').withDefault(const Constant(false))();
+  DateTimeColumn get updatedAt => dateTime().named('updated_at')();
 
   @override
   Set<Column> get primaryKey => {id};
@@ -26,11 +26,11 @@ class Incidents extends Table {
 
 class SyncQueue extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get entity_type => text()();
-  TextColumn get entity_id => text()();
+  TextColumn get entityType => text().named('entity_type')();
+  TextColumn get entityId => text().named('entity_id')();
   TextColumn get operation => text()();
   TextColumn get data => text()(); // JSON string representation
-  IntColumn get sequence_num => integer()();
+  IntColumn get sequenceNum => integer().named('sequence_num')();
   DateTimeColumn get timestamp => dateTime()();
   TextColumn get status => text().withDefault(const Constant('queued'))(); // queued, sent, failed
 }

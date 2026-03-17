@@ -17,45 +17,45 @@ Map<String, dynamic> _$HealthToJson(Health instance) => <String, dynamic>{
 };
 
 AuthResponse _$AuthResponseFromJson(Map<String, dynamic> json) => AuthResponse(
-  access_token: json['access_token'] as String,
-  token_type: json['token_type'] as String,
+  accessToken: json['access_token'] as String,
+  tokenType: json['token_type'] as String,
 );
 
 Map<String, dynamic> _$AuthResponseToJson(AuthResponse instance) =>
     <String, dynamic>{
-      'access_token': instance.access_token,
-      'token_type': instance.token_type,
+      'access_token': instance.accessToken,
+      'token_type': instance.tokenType,
     };
 
 Incident _$IncidentFromJson(Map<String, dynamic> json) => Incident(
   id: json['id'] as String,
-  reporter_id: json['reporter_id'] as String,
+  reporterId: json['reporter_id'] as String,
   type: json['type'] as String,
   lat: (json['lat'] as num).toDouble(),
   lon: (json['lon'] as num).toDouble(),
-  assigned_responder_id: json['assigned_responder_id'] as String?,
+  assignedResponderId: json['assigned_responder_id'] as String?,
   priority: json['priority'] as String,
   status: json['status'] as String,
-  client_id: json['client_id'] as String,
-  sequence_num: (json['sequence_num'] as num).toInt(),
+  clientId: json['client_id'] as String,
+  sequenceNum: (json['sequence_num'] as num).toInt(),
   deleted: json['deleted'] as bool? ?? false,
-  updated_at: DateTime.parse(json['updated_at'] as String),
+  updatedAt: DateTime.parse(json['updated_at'] as String),
   data: json['data'] as Map<String, dynamic>?,
 );
 
 Map<String, dynamic> _$IncidentToJson(Incident instance) => <String, dynamic>{
   'id': instance.id,
-  'reporter_id': instance.reporter_id,
+  'reporter_id': instance.reporterId,
   'type': instance.type,
   'lat': instance.lat,
   'lon': instance.lon,
-  'assigned_responder_id': instance.assigned_responder_id,
+  'assigned_responder_id': instance.assignedResponderId,
   'priority': instance.priority,
   'status': instance.status,
-  'client_id': instance.client_id,
-  'sequence_num': instance.sequence_num,
+  'client_id': instance.clientId,
+  'sequence_num': instance.sequenceNum,
   'deleted': instance.deleted,
-  'updated_at': instance.updated_at.toIso8601String(),
+  'updated_at': instance.updatedAt.toIso8601String(),
   'data': instance.data,
 };
 
@@ -66,8 +66,8 @@ IncidentCreateDto _$IncidentCreateDtoFromJson(Map<String, dynamic> json) =>
       lon: (json['lon'] as num).toDouble(),
       priority: json['priority'] as String,
       status: json['status'] as String,
-      client_id: json['client_id'] as String,
-      sequence_num: (json['sequence_num'] as num).toInt(),
+      clientId: json['client_id'] as String,
+      sequenceNum: (json['sequence_num'] as num).toInt(),
       data: json['data'] as Map<String, dynamic>?,
     );
 
@@ -78,27 +78,27 @@ Map<String, dynamic> _$IncidentCreateDtoToJson(IncidentCreateDto instance) =>
       'lon': instance.lon,
       'priority': instance.priority,
       'status': instance.status,
-      'client_id': instance.client_id,
-      'sequence_num': instance.sequence_num,
+      'client_id': instance.clientId,
+      'sequence_num': instance.sequenceNum,
       'data': instance.data,
     };
 
 LocalChange _$LocalChangeFromJson(Map<String, dynamic> json) => LocalChange(
-  entity_type: json['entity_type'] as String,
-  entity_id: json['entity_id'] as String,
+  entityType: json['entity_type'] as String,
+  entityId: json['entity_id'] as String,
   operation: json['operation'] as String,
   data: json['data'] as Map<String, dynamic>,
-  sequence_num: (json['sequence_num'] as num).toInt(),
+  sequenceNum: (json['sequence_num'] as num).toInt(),
   timestamp: DateTime.parse(json['timestamp'] as String),
 );
 
 Map<String, dynamic> _$LocalChangeToJson(LocalChange instance) =>
     <String, dynamic>{
-      'entity_type': instance.entity_type,
-      'entity_id': instance.entity_id,
+      'entity_type': instance.entityType,
+      'entity_id': instance.entityId,
       'operation': instance.operation,
       'data': instance.data,
-      'sequence_num': instance.sequence_num,
+      'sequence_num': instance.sequenceNum,
       'timestamp': instance.timestamp.toIso8601String(),
     };
 
@@ -112,7 +112,7 @@ SyncResult _$SyncResultFromJson(Map<String, dynamic> json) => SyncResult(
   errors: (json['errors'] as List<dynamic>)
       .map((e) => e as Map<String, dynamic>)
       .toList(),
-  current_server_sequence: (json['current_server_sequence'] as num).toInt(),
+  currentServerSequence: (json['current_server_sequence'] as num).toInt(),
 );
 
 Map<String, dynamic> _$SyncResultToJson(SyncResult instance) =>
@@ -120,5 +120,5 @@ Map<String, dynamic> _$SyncResultToJson(SyncResult instance) =>
       'accepted': instance.accepted.map((e) => e.toJson()).toList(),
       'conflicts': instance.conflicts.map((e) => e.toJson()).toList(),
       'errors': instance.errors,
-      'current_server_sequence': instance.current_server_sequence,
+      'current_server_sequence': instance.currentServerSequence,
     };

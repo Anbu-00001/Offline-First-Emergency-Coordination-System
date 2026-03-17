@@ -154,8 +154,8 @@ class P2PService {
       lon: (payload['lon'] as num?)?.toDouble() ?? 0.0,
       priority: payload['priority'] as String? ?? 'medium',
       status: 'new',
-      client_id: payload['device_id'] as String? ?? envelope.originPeer,
-      sequence_num: 1,
+      clientId: payload['device_id'] as String? ?? envelope.originPeer,
+      sequenceNum: 1,
       data: {
         'msg_id': envelope.msgId,
         'origin_peer': envelope.originPeer,
@@ -216,8 +216,8 @@ class P2PService {
         'lon': incident.lon,
         'priority': incident.priority,
         'status': incident.status,
-        'reporter_id': incident.reporter_id,
-        'timestamp': incident.updated_at.millisecondsSinceEpoch ~/ 1000,
+        'reporter_id': incident.reporterId,
+        'timestamp': incident.updatedAt.millisecondsSinceEpoch ~/ 1000,
       }).toList();
 
       final envelope = NetworkEnvelope(
@@ -304,15 +304,15 @@ class P2PService {
       msgId: 'msg_${DateTime.now().millisecondsSinceEpoch}_${incident.id.hashCode.abs()}',
       msgType: 'incident_create',
       originPeer: '', // Will be stamped by the Go daemon
-      timestamp: incident.updated_at.millisecondsSinceEpoch ~/ 1000,
+      timestamp: incident.updatedAt.millisecondsSinceEpoch ~/ 1000,
       payload: {
         'type': incident.type,
         'incident_id': incident.id,
         'lat': incident.lat,
         'lon': incident.lon,
         'priority': incident.priority,
-        'timestamp': incident.updated_at.millisecondsSinceEpoch ~/ 1000,
-        'device_id': incident.reporter_id,
+        'timestamp': incident.updatedAt.millisecondsSinceEpoch ~/ 1000,
+        'device_id': incident.reporterId,
       },
     );
 

@@ -100,11 +100,11 @@ class WsService {
     // 1. Persist to sync queue
     final queueId = await _db.into(_db.syncQueue).insert(
       SyncQueueCompanion.insert(
-        entity_type: 'Message',
-        entity_id: entityId ?? 'msg_${DateTime.now().millisecondsSinceEpoch}',
+        entityType: 'Message',
+        entityId: entityId ?? 'msg_${DateTime.now().millisecondsSinceEpoch}',
         operation: 'SEND',
         data: jsonEncode(msg),
-        sequence_num: 0,
+        sequenceNum: 0,
         timestamp: DateTime.now(),
         status: const Value('queued'),
       ),
@@ -128,7 +128,7 @@ class WsService {
   }
 
   Future<void> _flushQueue() async {
-    final pendingItems = await (_db.select(_db.syncQueue)..where((t) => t.status.equals('queued') & t.entity_type.equals('Message'))).get();
+    final pendingItems = await (_db.select(_db.syncQueue)..where((t) => t.status.equals('queued') & t.entityType.equals('Message'))).get();
     for (var item in pendingItems) {
       _trySendMessage(item.id, jsonDecode(item.data));
     }
