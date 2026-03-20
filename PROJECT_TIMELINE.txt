@@ -1067,3 +1067,21 @@ Content:
 • Enabled full peer-to-peer state convergence without central server
 
 ------------------------------------------------------------
+
+DAY 20:
+Date:
+Focus: Week 3 Day 20 – Robust Sync Engine & Convergence Guarantees
+
+Content:
+• Introduced sync session management per peer to track request/response lifecycle and prevent redundant operations
+• Implemented request deduplication ensuring previously requested message IDs are not re-fetched
+• Added batch-based message_request protocol to improve network efficiency and reduce overhead
+• Enforced bounded synchronization using iteration limits to prevent infinite request loops
+• Defined deterministic sync termination conditions when no missing messages remain
+• Integrated response deduplication to avoid repeated message transfers within a session
+• Strengthened forward causal delivery by ensuring topological ordering before message propagation
+• Added retry control with delay strategy to handle network latency without flooding peers
+• Implemented structured logging for sync lifecycle (start, progress, completion, termination)
+• Verified multi-device convergence without redundant transfers or inconsistent states
+
+------------------------------------------------------------
