@@ -1085,3 +1085,21 @@ Content:
 • Verified multi-device convergence without redundant transfers or inconsistent states
 
 ------------------------------------------------------------
+
+
+------------------------------------------------------------
+
+DAY 21:
+Week 3 Day 21 – CRDT-Based Conflict Resolution
+
+Content:
+
+• Implemented CRDT-based conflict resolution for decentralized incident state management
+• Designed monotonic state machine (PENDING → ASSIGNED → RESOLVED) with strict priority enforcement
+• Integrated logical clock-based tie-breaking for deterministic state resolution
+• Prevented state rollback under concurrent and out-of-order updates
+• Embedded CRDT merge logic within IncidentRepository ensuring compatibility with GossipLog causal ordering
+• Enabled conflict-free convergence across multiple peers without central coordination
+• Added structured logging for CRDT operations (merge applied, state updated, conflict resolved)
+• Validated system using comprehensive multi-device and multi-conflict test scenarios
+• Ensured deterministic convergence under concurrent updates across distributed peers
