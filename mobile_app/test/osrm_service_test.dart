@@ -22,7 +22,7 @@ void main() {
       osrmService = OSRMService(client: mockHttpClient);
     });
 
-    test('fetchRoute returns RouteResult with geometry, distance, duration', () async {
+    test('fetchRoute returns List<RouteResult> with geometry, distance, duration', () async {
       final jsonResponse = '''
       {
         "code": "Ok",
@@ -63,21 +63,22 @@ void main() {
 
       final result = await osrmService.fetchRoute(start: start, end: end);
 
-      expect(result, isNotNull);
-      expect(result!.geometry.length, 2);
-      expect(result.geometry[0].latitude, 13.0215);
-      expect(result.geometry[0].longitude, 80.2057);
-      expect(result.geometry[1].latitude, 13.0250);
-      expect(result.geometry[1].longitude, 80.2100);
-      expect(result.distanceMeters, 3400.5);
-      expect(result.durationSeconds, 480.0);
-      expect(result.steps.length, 1);
-      expect(result.steps[0].instruction, contains('Main Road'));
+      expect(result, isNotEmpty);
+      final firstRoute = result.first;
+      expect(firstRoute.geometry.length, 2);
+      expect(firstRoute.geometry[0].latitude, 13.0215);
+      expect(firstRoute.geometry[0].longitude, 80.2057);
+      expect(firstRoute.geometry[1].latitude, 13.0250);
+      expect(firstRoute.geometry[1].longitude, 80.2100);
+      expect(firstRoute.distanceMeters, 3400.5);
+      expect(firstRoute.durationSeconds, 480.0);
+      expect(firstRoute.steps.length, 1);
+      expect(firstRoute.steps[0].instruction, contains('Main Road'));
 
       verify(() => mockHttpClient.get(any())).called(1);
     });
 
-    test('fetchRoute returns null when no route is found', () async {
+    test('fetchRoute returns empty list when no route is found', () async {
       final jsonResponse = '''
       {
         "code": "Ok",
@@ -94,7 +95,7 @@ void main() {
 
       final result = await osrmService.fetchRoute(start: start, end: end);
 
-      expect(result, isNull);
+      expect(result, isEmpty);
       verify(() => mockHttpClient.get(any())).called(1);
     });
 
@@ -110,11 +111,11 @@ void main() {
 
       final result = await osrmService.fetchRoute(start: start, end: end);
 
-      expect(result, isNull);
+      expect(result, isEmpty);
       verify(() => mockHttpClient.get(any())).called(1);
     });
 
-    test('fetchRoute returns null on non-200 status', () async {
+    test('fetchRoute returns empty list on non-200 status', () async {
       when(() => mockHttpClient.get(any())).thenAnswer(
         (_) async => http.Response('Server Error', 500),
       );
@@ -124,7 +125,7 @@ void main() {
 
       final result = await osrmService.fetchRoute(start: start, end: end);
 
-      expect(result, isNull);
+      expect(result, isEmpty);
       verify(() => mockHttpClient.get(any())).called(1);
     });
   });

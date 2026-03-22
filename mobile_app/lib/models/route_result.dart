@@ -111,6 +111,59 @@ class RouteResult {
       steps: steps,
     );
   }
+
+  /// Parse a list of [RouteResult]s from the top-level OSRM JSON response.
+  static List<RouteResult> fromOsrmJsonList(Map<String, dynamic> data) {
+    if (data['code'] != 'Ok') return [];
+
+    final routes = data['routes'] as List?;
+    if (routes == null || routes.isEmpty) return [];
+
+    final results = <RouteResult>[];
+    for (final rawRoute in routes) {
+      final route = rawRoute as Map<String, dynamic>;
+      final rawGeometry = route['geometry'];
+
+      List<LatLng> points;
+
+      if (rawGeometry is String) {
+        points = decodePolyline(rawGeometry, precision: 6);
+      } else if (rawGeometry is Map<String, dynamic>) {
+        if (rawGeometry['type'] != 'LineString') continue;
+        final coordinates = rawGeometry['coordinates'] as List? ?? [];
+        points = coordinates.map<LatLng>((coord) {
+          final lon = (coord[0] as num).toDouble();
+          final lat = (coord[1] as num).toDouble();
+          return LatLng(lat, lon);
+        }).toList();
+      } else {
+        continue;
+      }
+
+      if (points.isEmpty) continue;
+
+      final distanceMeters = (route['distance'] as num?)?.toDouble() ?? 0.0;
+      final durationSeconds = (route['duration'] as num?)?.toDouble() ?? 0.0;
+
+      final steps = <RouteStep>[];
+      final legs = route['legs'] as List? ?? [];
+      for (final leg in legs) {
+        final legSteps = (leg as Map<String, dynamic>)['steps'] as List? ?? [];
+        for (final step in legSteps) {
+          steps.add(RouteStep.fromOsrmJson(step as Map<String, dynamic>));
+        }
+      }
+
+      results.add(RouteResult(
+        geometry: points,
+        distanceMeters: distanceMeters,
+        durationSeconds: durationSeconds,
+        steps: steps,
+      ));
+    }
+
+    return results;
+  }
 }
 
 String _capitalize(String s) {

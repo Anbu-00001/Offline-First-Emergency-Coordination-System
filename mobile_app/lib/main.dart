@@ -23,6 +23,7 @@ import 'services/routing_service.dart';
 import 'services/responder_registry.dart';
 import 'controllers/responder_controller.dart';
 import 'controllers/route_controller.dart';
+import 'services/route_avoidance_service.dart';
 import 'services/p2p_service.dart';
 
 void main() async {
@@ -68,7 +69,8 @@ void main() async {
   final routingConfig = RoutingConfig();
   final routingService = OsrmRoutingService(osrmService: osrmService, config: routingConfig);
   final routeCacheService = RouteCacheService();
-  final routeController = RouteController(routingService, routeCacheService);
+  final routeAvoidanceService = RouteAvoidanceService();
+  final routeController = RouteController(routingService, routeCacheService, routeAvoidanceService, incidentRepo);
   final responderRegistry = MockResponderRegistry();
 
   runApp(
@@ -95,6 +97,7 @@ void main() async {
         Provider<OSRMService>.value(value: osrmService),
         Provider<RoutingService>.value(value: routingService),
         Provider<RouteCacheService>.value(value: routeCacheService),
+        Provider<RouteAvoidanceService>.value(value: routeAvoidanceService),
         Provider<RouteController>.value(value: routeController),
         Provider<P2PService>.value(value: p2pService),
       ],

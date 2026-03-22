@@ -5,8 +5,8 @@ import 'osrm_service.dart';
 
 /// Abstract service defined for routing features within the application.
 abstract class RoutingService {
-  /// Fetches a route between two coordinate points.
-  Future<RouteResult?> getRoute(LatLng start, LatLng end);
+  /// Fetches a route between two coordinate points, optionally requesting alternatives.
+  Future<List<RouteResult>> getRoute(LatLng start, LatLng end, {bool alternatives = false});
 }
 
 /// OSRM-based implementation of the [RoutingService].
@@ -21,12 +21,13 @@ class OsrmRoutingService implements RoutingService {
         _config = config ?? RoutingConfig();
 
   @override
-  Future<RouteResult?> getRoute(LatLng start, LatLng end) async {
+  Future<List<RouteResult>> getRoute(LatLng start, LatLng end, {bool alternatives = false}) async {
     // Utilize the OSRMService logic but instruct it on the base URL based on config mode
     return _osrmService.fetchRoute(
       start: start,
       end: end,
       baseUrlOverride: _config.activeOsrmUrl,
+      alternatives: alternatives,
     );
   }
 }
