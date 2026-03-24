@@ -21,6 +21,7 @@ import 'package:mobile_app/controllers/route_controller.dart';
 import 'package:mobile_app/services/route_avoidance_service.dart';
 import 'package:mobile_app/services/polygon_generator.dart';
 import 'package:mobile_app/services/polygon_avoidance_service.dart';
+import 'package:mobile_app/services/polygon_cache_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mobile_app/controllers/responder_controller.dart';
 import 'package:mobile_app/data/db/prefetch_database.dart';
@@ -39,7 +40,9 @@ void main() {
     final authService = AuthService();
     final apiClient = ApiClient(baseUrl: 'http://test', authService: authService);
     p2pService = P2PService(hostUrl: 'http://test');
-    final incidentRepo = IncidentRepository(db, apiClient, p2pService);
+    final polygonGenerator = PolygonGenerator();
+    final polygonCacheService = PolygonCacheService(polygonGenerator);
+    final incidentRepo = IncidentRepository(db, apiClient, p2pService, polygonCacheService);
     final config = AppConfig();
     final wsService = WsService('http://test', authService, db);
     final mapService = MapService();
@@ -50,8 +53,7 @@ void main() {
     final routingService = OsrmRoutingService(osrmService: osrmService, config: routingConfig);
     final routeCacheService = RouteCacheService();
     final routeAvoidanceService = RouteAvoidanceService();
-    final polygonGenerator = PolygonGenerator();
-    final polygonAvoidanceService = PolygonAvoidanceService(polygonGenerator);
+    final polygonAvoidanceService = PolygonAvoidanceService(polygonCacheService);
     routeController = RouteController(routingService, routeCacheService, routeAvoidanceService, polygonAvoidanceService, incidentRepo);
     final responderRegistry = MockResponderRegistry();
     

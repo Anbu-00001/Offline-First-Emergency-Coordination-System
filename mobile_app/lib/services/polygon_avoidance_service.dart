@@ -1,29 +1,31 @@
 import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
-import '../models/models.dart';
 import '../models/polygon_model.dart';
-import 'polygon_generator.dart';
+import 'polygon_cache_service.dart';
 import '../utils/geo_spatial_utils.dart';
 
+/// Day 27: Evaluates route safety against cached danger polygons.
+///
+/// Reads pre-computed polygons from [PolygonCacheService] instead of
+/// regenerating on every call. This guarantees consistency with the
+/// deterministic polygon pipeline.
 class PolygonAvoidanceService {
-  final PolygonGenerator _generator;
+  final PolygonCacheService _cacheService;
 
-  PolygonAvoidanceService(this._generator);
+  PolygonAvoidanceService(this._cacheService);
 
-  bool isRouteSafeWithPolygons(List<LatLng> route, List<Incident> incidents) {
-    if (incidents.isEmpty) return true;
+  bool isRouteSafeWithPolygons(List<LatLng> route) {
+    final List<DangerPolygon> polygons = _cacheService.getAllPolygons();
 
-    final List<DangerPolygon> polygons = incidents.map((i) {
-      debugPrint('POLYGON_GENERATED');
-      return _generator.generatePolygonFromIncident(i);
-    }).toList();
+    if (polygons.isEmpty) return true;
 
     for (final polygon in polygons) {
       if (doesPolylineIntersectPolygon(route, polygon.points)) {
-        debugPrint('POLYGON_INTERSECTION_DETECTED');
+        debugPrint('POLYGON_INTERSECTION_DETECTED: ${polygon.incidentId}');
         return false;
       }
     }
     return true;
   }
 }
+

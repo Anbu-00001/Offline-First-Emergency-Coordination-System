@@ -35,7 +35,7 @@ class RouteController {
 
   bool _isRouteSafe(List<LatLng> geometry, List<Incident> incidents) {
     if (!_avoidanceService.isRouteSafe(geometry, incidents)) return false;
-    if (!_polygonAvoidanceService.isRouteSafeWithPolygons(geometry, incidents)) return false;
+    if (!_polygonAvoidanceService.isRouteSafeWithPolygons(geometry)) return false;
     return true;
   }
 

@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mobile_app/data/repositories/incident_repository.dart';
 import 'package:mobile_app/data/database.dart';
 import 'package:mobile_app/services/p2p_service.dart';
+import 'package:mobile_app/services/polygon_generator.dart';
+import 'package:mobile_app/services/polygon_cache_service.dart';
 import 'package:mobile_app/core/api_client.dart';
 import 'package:mobile_app/models/network_envelope.dart';
 
@@ -43,7 +45,8 @@ void main() {
 
       p2pService = P2PService(hostUrl: 'http://127.0.0.1', port: mockDaemon.port);
       db = AppDatabase.memory();
-      repository = IncidentRepository(db, MockApiClient(), p2pService);
+      final polygonCache = PolygonCacheService(PolygonGenerator());
+      repository = IncidentRepository(db, MockApiClient(), p2pService, polygonCache);
 
       p2pService.connect();
       await Future.delayed(const Duration(milliseconds: 100)); // wait for ws binding

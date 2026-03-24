@@ -26,6 +26,7 @@ import 'controllers/route_controller.dart';
 import 'services/route_avoidance_service.dart';
 import 'services/polygon_generator.dart';
 import 'services/polygon_avoidance_service.dart';
+import 'services/polygon_cache_service.dart';
 import 'services/p2p_service.dart';
 
 void main() async {
@@ -42,7 +43,6 @@ void main() async {
   final p2pService = P2PService(hostUrl: baseUrl);
   // Start the background connection to the local node
   p2pService.connect();
-  final incidentRepo = IncidentRepository(db, apiClient, p2pService);
   final wsService = WsService(baseUrl, authService, db);
   final mapService = MapService();
 
@@ -73,7 +73,9 @@ void main() async {
   final routeCacheService = RouteCacheService();
   final routeAvoidanceService = RouteAvoidanceService();
   final polygonGenerator = PolygonGenerator();
-  final polygonAvoidanceService = PolygonAvoidanceService(polygonGenerator);
+  final polygonCacheService = PolygonCacheService(polygonGenerator);
+  final polygonAvoidanceService = PolygonAvoidanceService(polygonCacheService);
+  final incidentRepo = IncidentRepository(db, apiClient, p2pService, polygonCacheService);
   final routeController = RouteController(routingService, routeCacheService, routeAvoidanceService, polygonAvoidanceService, incidentRepo);
   final responderRegistry = MockResponderRegistry();
 
@@ -103,6 +105,7 @@ void main() async {
         Provider<RouteCacheService>.value(value: routeCacheService),
         Provider<RouteAvoidanceService>.value(value: routeAvoidanceService),
         Provider<PolygonAvoidanceService>.value(value: polygonAvoidanceService),
+        Provider<PolygonCacheService>.value(value: polygonCacheService),
         Provider<RouteController>.value(value: routeController),
         Provider<P2PService>.value(value: p2pService),
       ],

@@ -6,13 +6,15 @@ import '../database.dart' as db;
 import '../../core/api_client.dart';
 import '../mappers/incident_mapper.dart';
 import '../../services/p2p_service.dart';
+import '../../services/polygon_cache_service.dart';
 
 class IncidentRepository {
   final db.AppDatabase _db;
   final ApiClient _apiClient;
   final P2PService _p2pService;
+  final PolygonCacheService _polygonCache;
 
-  IncidentRepository(this._db, this._apiClient, this._p2pService) {
+  IncidentRepository(this._db, this._apiClient, this._p2pService, this._polygonCache) {
     // Day-16: Listen for incoming incident_create messages
     _p2pService.incomingIncidents.listen((dto) {
       _handleIncomingP2PIncident(dto);
@@ -65,6 +67,9 @@ class IncidentRepository {
       updatedAt: DateTime.now(),
     );
     _p2pService.broadcastIncident(incidentToBroadcast);
+
+    // Day 27: Generate and cache polygon for newly created incident
+    _polygonCache.updateFromIncident(incidentToBroadcast);
 
     await _db.transaction(() async {
       await _db.into(_db.incidents).insert(
@@ -214,11 +219,17 @@ class IncidentRepository {
             clientId: Value(dto.clientId),
           ),
         );
+
+        // Day 27: Refresh polygon cache after CRDT merge update
+        debugPrint('[IncidentRepo] CRDT_MERGE_COMPLETED: $incidentId');
+        final updatedIncident = await getIncident(incidentId);
+        _polygonCache.updateFromIncident(updatedIncident);
       } else {
         debugPrint(
             '[IncidentRepo] CRDT_MERGE_APPLIED: Local state kept for $incidentId');
         debugPrint('[IncidentRepo] CONFLICT_RESOLVED: local wins');
       }
+      debugPrint('[IncidentRepo] P2P_INCIDENT_RECEIVED: $incidentId');
       return;
     }
 
@@ -240,6 +251,11 @@ class IncidentRepository {
 
     debugPrint(
         '[IncidentRepo] P2P incident inserted: $incidentId');
+    debugPrint('[IncidentRepo] P2P_INCIDENT_RECEIVED: $incidentId');
+
+    // Day 27: Generate and cache polygon after P2P insert
+    final insertedIncident = await getIncident(incidentId);
+    _polygonCache.updateFromIncident(insertedIncident);
   }
 
   // ─── Day-17: State Synchronization Handlers ────────────────────────────

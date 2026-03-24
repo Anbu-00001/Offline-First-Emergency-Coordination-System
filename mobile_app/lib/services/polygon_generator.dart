@@ -1,8 +1,16 @@
 import 'dart:math' as math;
+import 'package:flutter/foundation.dart';
 import 'package:latlong2/latlong.dart';
 import '../models/models.dart';
 import '../models/polygon_model.dart';
 
+/// Generates deterministic danger polygons from incident data.
+///
+/// Day 27: This function is PURE and deterministic:
+/// - Radius derived ONLY from incident.type
+/// - Fixed 12 polygon points
+/// - Constant angle step: 360 / 12
+/// - No random values, no timestamps, no device-specific inputs
 class PolygonGenerator {
   static const double _earthRadiusMeters = 6378137.0; // WGS84
 
@@ -38,6 +46,8 @@ class PolygonGenerator {
 
       points.add(LatLng(newLat, newLon));
     }
+
+    debugPrint('[PolygonGenerator] POLYGON_GENERATED_FROM_INCIDENT: ${incident.id} type=${incident.type} radius=$radius points=$numPoints');
 
     return DangerPolygon(
       id: '${incident.id}_poly',
