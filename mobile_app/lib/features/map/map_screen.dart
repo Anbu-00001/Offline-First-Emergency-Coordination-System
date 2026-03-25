@@ -810,6 +810,14 @@ class _MapScreenState extends State<MapScreen> {
                         MarkerLayer(
                           markers: _buildMarkers(),
                         ),
+                        RichAttributionWidget(
+                          attributions: [
+                            TextSourceAttribution(
+                              '© OpenStreetMap contributors',
+                              onTap: () {}, // Make it tappable to show the text cleanly without launching URL if not needed (or we could omit onTap)
+                            ),
+                          ],
+                        ),
                       ],
                     );
                   },

@@ -120,6 +120,13 @@ We commit to avoiding all proprietary APIs or third-party locked-in services.
 
 By enforcing these constraints, OpenRescue guarantees deployment flexibility and long-term sustainability without vendor lockdown.
 
+## FOSS Compliance
+
+OpenRescue has undergone a formal Free and Open-Source Software (FOSS) audit to ensure absolute compliance with global open-software standards:
+- **All components are open-source**: Every dependency across the Flutter app, FastAPI backend, and Go P2P node is fully open-source and approved.
+- **No proprietary APIs used**: The application is free of vendor lock-in. We do not use Google Maps SDK, Firebase, or closed data vendors. We utilize OpenStreetMap, OSRM, and Nominatim.
+- **Fully offline capable**: Routing operates locally via the OSRM Docker container, and map tiles dynamically fall back to local storage without requiring external internet. Real-time peer-to-peer syncing is supported natively via mDNS.
+
 ## Running the Project
 
 ### Backend

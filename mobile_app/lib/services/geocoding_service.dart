@@ -13,6 +13,8 @@ class GeocodingService {
 
   GeocodingService({http.Client? client}) : _client = client ?? http.Client();
 
+  static DateTime? _lastRequestTime;
+
   /// Perform a Reverse Geocode to translate a LatLng into a physical address.
   /// Converts lat/lon locally to avoid hitting the API repetitively for identical calls.
   Future<GeocodeResult?> reverse(double lat, double lon) async {
@@ -24,6 +26,15 @@ class GeocodingService {
     }
     
     debugPrint('GeocodingService: Cache MISS for $cacheKey — fetching API');
+
+    final now = DateTime.now();
+    if (_lastRequestTime != null) {
+      final diff = now.difference(_lastRequestTime!);
+      if (diff.inMilliseconds < 1000) {
+        await Future.delayed(Duration(milliseconds: 1000 - diff.inMilliseconds));
+      }
+    }
+    _lastRequestTime = DateTime.now();
 
     try {
       final uriStr = 'https://nominatim.openstreetmap.org/reverse'

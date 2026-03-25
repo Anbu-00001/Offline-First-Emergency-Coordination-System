@@ -1,0 +1,14 @@
+OpenRescue incorporates and relies on the following open-source projects and data:
+
+1. OpenStreetMap
+This project uses OpenStreetMap data licensed under the Open Data Commons Open Database License (ODbL). 
+© OpenStreetMap contributors. 
+For more information, see: https://www.openstreetmap.org/copyright
+
+2. OSRM (Open Source Routing Machine)
+This project uses OSRM for local routing algorithms, licensed under the BSD 2-Clause License.
+
+3. libp2p
+This project uses go-libp2p and related networking modules for peer-to-peer communication, licensed under the MIT License / Apache 2.0 License.
+
+All other dependencies used in this project are Free and Open Source Software (FOSS), compliant with GPL-3.0 compatibility rules.
