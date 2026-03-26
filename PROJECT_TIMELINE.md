@@ -76,7 +76,7 @@ Tasks Completed:
 - Implemented secure JWT-based authentication system (HS256)
 - Added password hashing using bcrypt
 - Created protected route with token validation
-- Implemented CAP (Common Alerting Protocol) compliant XML parser service
+- Implemented CAP (Common Alerting Protocol) compliant XML parser service.
 - Added API endpoint to parse CAP XML and return structured JSON
 
 Technical Details:
