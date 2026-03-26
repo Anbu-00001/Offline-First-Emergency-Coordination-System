@@ -1,7 +1,7 @@
 # OpenRescue
 ## Offline-First Emergency Coordination System
 
-> "Built for when the internet fails — enabling real-time emergency coordination through decentralized, offline-first technology."
+> "Built for when the internet fails — enabling real-time emergency coordination through decentralized, offline-first technology"
 
 ---
 
