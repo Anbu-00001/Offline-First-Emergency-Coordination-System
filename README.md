@@ -1,9 +1,78 @@
+<!-- Badges -->
+![License: GPL-3.0](https://img.shields.io/badge/License-GPL_3.0-blue.svg)
+![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?logo=flutter)
+![Go](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)
+![Offline-First](https://img.shields.io/badge/Offline--First-Fully_Supported-success)
+![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg)
+
+![OpenRescue Banner](docs/hero-banner.png)
+
 # OpenRescue
-## Offline-First Emergency Coordination System
+**Built for when the internet fails — real-time emergency coordination through decentralized, offline-first technology.**
 
-> "Built for when the internet fails — enabling real-time emergency coordination through decentralized, offline-first technology"
+---
 
-OpenRescue operates as a decentralized, offline-first emergency coordination system where each device functions independently while still collaborating through peer-to-peer communication. The system combines local routing, distributed data synchronization, and intelligent map processing to ensure reliable operation even when traditional network infrastructure is unavailable.
+### [**🎬 Watch the 2-Minute Pitch/Demo Video**](#)
+
+<p align="center">
+  <img src="docs/sync-demo.gif" alt="P2P Sync Demo" width="45%" />
+  <img src="docs/routing-demo.gif" alt="Offline Routing Demo" width="45%" />
+</p>
+
+---
+
+## Table of Contents
+- [The 'Oh Crap' Scenario](#the-oh-crap-scenario)
+- [Key Features (Show, Don't Tell)](#key-features-show-dont-tell)
+- [Architecture Deep Dive](#architecture-deep-dive)
+- [Tech Stack](#tech-stack)
+- [Frictionless Quickstart](#frictionless-quickstart-developer-experience)
+- [Hackathon Journey & Roadmap](#hackathon-journey--roadmap)
+- [Closing & License](#closing--license)
+
+---
+
+## The 'Oh Crap' Scenario
+
+In the aftermath of a disaster, centralized communication infrastructure is the first to collapse. Fiber lines are cut, cell towers lose power, and the internet becomes an unreliable luxury. When this happens:
+- **Centralized systems fail** precisely when they are most needed.
+- **Coordination breaks down**, leaving responders and victims in isolation.
+- **Response times increase**, directly impacting lives.
+
+**OpenRescue is not just software—it's a life-saving tool.** It rethinks emergency response by removing dependence on massive centralized infrastructure, empowering first responders to coordinate effectively even in absolute dead zones.
+
+---
+
+## Key Features (Show, Don't Tell)
+
+*   **Offline Maps**: *Ground truth is always visible.* Maps remain fully available without internet, implemented using tile prefetch logic and a durable local file tile provider leveraging MBTiles.
+*   **Offline Routing via OSRM**: *Navigating around hazards in a dead zone.* Powered by a local OSRM engine running in Docker. Responders get critical routing utilizing OpenStreetMap data entirely offline.
+*   **P2P Incident Sync via libp2p**: *Information spreads like fire across the network.* Leverages robust libp2p GossipSub for instant decentralized incident broadcasting across the mesh.
+*   **CRDT Conflict Resolution**: *Multiple chaotic updates condense into one truth.* Uses Conflict-free Replicated Data Types (CRDTs) to ensure all devices converge to the exact same state locally without ever touching a central server.
+*   **Deterministic Danger Zones**: *Universal situational awareness.* Visual safety boundaries are derived using pure geometric functions, ensuring identical polygons are generated from the same incident data across all devices without any network overhead.
+
+---
+
+## Architecture Deep Dive
+
+<details>
+<summary><b>View System Architecture & Data Flow</b></summary>
+
+### System Layout
+
+"This system is designed as a fully decentralized mesh where every device acts as both client and server."
+
+```mermaid
+flowchart TD
+A[Mobile Device A] -->|GossipSub| B[Mobile Device B]
+B --> C[Incident DB]
+C --> D[CRDT Merge Engine]
+D --> E[Polygon Generator]
+E --> F[Routing Engine OSRM]
+F --> G[Map UI]
+```
+
+### Core Module Connections
 
 ```mermaid
 flowchart LR
@@ -53,85 +122,8 @@ FastAPI -->|Metadata / Extensions| A
 FastAPI -->|Metadata / Extensions| B
 ```
 
-This diagram illustrates how OpenRescue combines local computation, peer-to-peer communication, and offline routing to create a resilient emergency response system.
+### Data Flow
 
----
-
-### The Problem: When Every Second Counts, Centralized Systems Fail
-
-In the aftermath of a disaster, centralized communication infrastructure is the first to collapse. Fiber lines are cut, cell towers lose power, and the internet becomes an unreliable luxury. When this happens:
-- **Centralized systems fail** precisely when they are most needed.
-- **Coordination breaks down**, leaving responders and victims in isolation.
-- **Response times increase**, directly impacting lives.
-
-**OpenRescue rethinks emergency response by removing dependence on centralized infrastructure.**
-
----
-
-### Key Features (Human + Tech Blend)
-
-**Offline Maps**
-→ Maps remain available even without internet
-→ Implemented using **tile prefetch** logic + a **local file tile provider** leveraging MBTiles.
-
-**Offline Routing (OSRM)**
-→ Responders get navigation even in dead zones
-→ Powered by a **local OSRM engine** running in Docker, processing OpenStreetMap data entirely offline.
-
-**P2P Incident Sync**
-→ Information spreads like fire across the network
-→ Leverages **libp2p GossipSub** for decentralized incident broadcasting across the mesh.
-
-**CRDT-Based Conflict Resolution**
-→ Multiple updates, one certain truth
-→ Uses **Conflict-free Replicated Data Types (CRDTs)** to ensure all devices converge to the same state without a central server.
-
-**Deterministic Danger Zones**
-→ Visual safety boundaries that match on every device
-→ Derived using **pure geometric functions**, ensuring identical polygons are generated from the same incident data without network overhead.
-
----
-
-### Tech Stack (Why each matters)
-
-**Flutter**
-→ Provides a **high-performance, cross-platform UI** for rapid deployment on both responder and civilian devices.
-
-**OSRM (Open Source Routing Machine)**
-→ Enables **fully offline routing** using local map data, critical for navigation when external APIs (like Google Maps) are unreachable.
-
-**Go (libp2p)**
-→ Powers the **decentralized peer-to-peer communication** layer, allowing devices to form an ad-hoc mesh network automatically.
-
-**Drift (SQLite)**
-→ A reactive **local database** providing the foundation for our offline-first persistence and state management.
-
----
-
-### Why OpenRescue Stands Out
-
-- **Works Without Internet**: Every core feature—mapping, routing, and sync—is designed for air-gapped environments.
-- **No Central Server Required**: The system forms an autonomous mesh; the more devices join, the stronger the network becomes.
-- **Deterministic Polygon Sync**: Eliminates geometric divergence across devices by calculating danger zones locally and identically.
-- **CRDT-Based Convergence**: Guarantees that even with out-of-order messages, every responder sees the same operational picture.
-
----
-
-### Architecture Overview
-
-"This system is designed as a fully decentralized mesh where every device acts as both client and server."
-
-```mermaid
-flowchart TD
-A[Mobile Device A] -->|GossipSub| B[Mobile Device B]
-B --> C[Incident DB]
-C --> D[CRDT Merge Engine]
-D --> E[Polygon Generator]
-E --> F[Routing Engine OSRM]
-F --> G[Map UI]
-```
-
-#### Data Flow
 ```mermaid
 sequenceDiagram
 participant A as Device A
@@ -142,45 +134,71 @@ B->>B: CRDT Merge
 B->>B: Generate Polygon
 B->>B: Update Route Avoidance
 ```
+</details>
 
 ---
 
-### Example Scenario: Flood Response
+## Tech Stack
 
-**The Scenario:** A sudden flash flood knocks out local cell towers. 
-1. **Report:** A responder on the ground (Device A) scouts a submerged bridge and creates an incident.
-2. **Sync:** Because Device A is part of the OpenRescue mesh, the incident is instantly broadcast to Device B (a block away) via P2P.
-3. **Adapt:** Device B's routing engine immediately detects the new "Danger Zone" and reroutes the responder to a safer path.
-4. **Result:** Real-time coordination continues purely over the ad-hoc network, saving critical minutes.
-
----
-
-### How It Works (The 5-Step Flow)
-
-1. **Incident Created**: Data is captured locally and given a causal timestamp (Lamport clock).
-2. **Broadcast via P2P**: The incident propagates through the libp2p GossipSub network.
-3. **CRDT Merge**: Incoming data is merged into the local Drift database with deterministic conflict resolution.
-4. **Polygon Generated**: The system derives a hazard area (polygon) around the incident coordinates.
-5. **Routing Updated**: The offline OSRM engine adjusts routes to avoid newly identified hazard polygons.
+*   **Flutter**: Provides a **high-performance, cross-platform UI** ensuring we can rapidly deploy to any responder or civilian device in the field.
+*   **Go (libp2p)**: The engine of our **decentralized peer-to-peer communication** layer, allowing ad-hoc mesh networking that works seamlessly without a central broker.
+*   **OSRM (Open Source Routing Machine)**: Enables **fully offline routing** using local map data, critical for navigation when external APIs (like Google Maps) are completely unreachable.
+*   **Drift (SQLite)**: *Why Drift?* Reactive local storage ensures our mobile UI immediately updates the second P2P data syncs and CRDTs merge, giving a flawless reactive experience.
 
 ---
 
-### FOSS Compliance
+## Frictionless Quickstart (Developer Experience)
 
-OpenRescue is built on **Architectural Sovereignty**:
-- **100% Open-Source**: Every layer—from Flutter to Go—is fully FOSS compliant.
+We've made it as bulletproof as possible to boot up the entire decentralized stack.
+
+### Prerequisites
+- Docker & Docker Compose
+- Flutter SDK
+- Go 1.21+
+
+> ⚠️ **Crucial Network Note:** The Flutter mobile app needs to connect to the local OSRM and Go P2P nodes. If running on a physical device or emulator, ensure your config environment points to your machine's **local network IP address** (e.g., `192.168.1.X`), not `localhost`!
+
+### Step 1: Spin up Local Offline Routing (OSRM)
+Get the routing engine running on offline OpenStreetMap data. 
+```bash
+docker compose -f docker-compose.osrm.yml up -d
+```
+
+### Step 2: Run the Go P2P Node
+Start the decentralized mesh network daemon.
+```bash
+cd backend/p2p-node/
+go run main.go
+```
+
+### Step 3: Run the Flutter App
+Launch the responder interface.
+```bash
+cd mobile_app
+flutter run
+```
+
+---
+
+## Hackathon Journey & Roadmap
+
+### Challenges We Conquered
+Building a completely decentralized mobile system is inherently challenging. Our biggest victory was guaranteeing **CRDT convergence over an unreliable P2P mesh**. We had to ensure that when devices reconnect after intermittent signal drops, their incident polygons update deterministically without creating duplicate or fragmented hazard zones.
+
+### What's Next 🚀
+*   **Hardware Integration**: Extending the P2P layer over **LoRaWAN** to cover massive distances during complete cellular blackouts.
+*   **Battery Optimization**: Throttling GossipSub broadcasts intelligently to save crucial responder device battery life in extended scenarios.
+*   **Mesh Bridging**: Allowing devices with satellite uplinks to act as temporary gateways for the rest of the offline mesh.
+
+---
+
+## Closing & License
+
+OpenRescue is built with **Architectural Sovereignty**: 
+- **100% Open-Source**: Every layer is fully FOSS compliant.
 - **No Proprietary APIs**: No Google Maps, Firebase, or closed SDKs.
 - **Fully Offline**: Designed to work where big-tech infrastructure ends.
 
----
-
-### How to Run
-
-1. **OSRM Setup**: `docker compose -f docker-compose.osrm.yml up`
-2. **Go P2P Node**: Located in `backend/p2p-node/`, run `go run main.go`
-3. **Flutter App**: `cd mobile_app && flutter run`
-
----
-
-Licensed under [GPL-3.0](LICENSE).
-© OpenStreetMap contributors
+Licensed under [GPL-3.0](LICENSE).  
+© OpenStreetMap contributors  
+*Hackathon built. Real-world ready.*
