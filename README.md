@@ -3,6 +3,58 @@
 
 > "Built for when the internet fails — enabling real-time emergency coordination through decentralized, offline-first technology"
 
+OpenRescue operates as a decentralized, offline-first emergency coordination system where each device functions independently while still collaborating through peer-to-peer communication. The system combines local routing, distributed data synchronization, and intelligent map processing to ensure reliable operation even when traditional network infrastructure is unavailable.
+
+```mermaid
+flowchart LR
+
+%% Devices
+A[Flutter App Device A]
+B[Flutter App Device B]
+
+%% Core Mobile Components
+A --> A1[Local DB (Drift)]
+A --> A2[Polygon Generator]
+A --> A3[Routing Controller]
+
+B --> B1[Local DB (Drift)]
+B --> B2[Polygon Generator]
+B --> B3[Routing Controller]
+
+%% P2P Layer
+A -->|Broadcast Incident| P2P[Go libp2p Daemon]
+P2P -->|GossipSub Sync| B
+
+%% CRDT + Sync
+B --> B4[CRDT Merge Engine]
+A --> A4[CRDT Merge Engine]
+
+%% Polygon Generation
+A4 --> A2
+B4 --> B2
+
+%% OSRM Routing
+A3 --> OSRM[OSRM Server (Local)]
+B3 --> OSRM
+
+%% Tile System
+A --> Tiles[Offline Tile Storage]
+B --> Tiles
+
+%% Map Rendering
+Tiles --> Map[Flutter Map UI]
+OSRM --> Map
+
+%% Optional Backend
+A -->|Optional API| FastAPI[FastAPI Backend]
+B -->|Optional API| FastAPI
+
+FastAPI -->|Metadata / Extensions| A
+FastAPI -->|Metadata / Extensions| B
+```
+
+This diagram illustrates how OpenRescue combines local computation, peer-to-peer communication, and offline routing to create a resilient emergency response system.
+
 ---
 
 ### The Problem: When Every Second Counts, Centralized Systems Fail
