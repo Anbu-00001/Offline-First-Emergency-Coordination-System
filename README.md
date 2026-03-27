@@ -23,20 +23,34 @@
 
 ```mermaid
 flowchart LR
-A[Flutter App] --> DB[Local DB (Drift)]
-A --> P2P[Go libp2p Daemon]
-A --> OSRM[OSRM Server]
-A --> Tiles[Offline Tiles]
 
-P2P -->|Sync Incidents| Other[Other Devices]
+A[Flutter App Device]
 
-DB --> CRDT[CRDT Merge Engine]
-CRDT --> Poly[Polygon Generator]
+DB[Local DB - Drift]
+P2P[Go libp2p Daemon]
+OSRM[OSRM Server]
+Tiles[Offline Tile Storage]
 
-Poly --> Route[Routing Controller]
+CRDT[CRDT Merge Engine]
+Poly[Polygon Generator]
+Route[Routing Controller]
+UI[Map UI]
+
+Other[Other Devices]
+
+A --> DB
+A --> P2P
+A --> OSRM
+A --> Tiles
+
+P2P --> Other
+
+DB --> CRDT
+CRDT --> Poly
+Poly --> Route
 Route --> OSRM
 
-Tiles --> UI[Map UI]
+Tiles --> UI
 OSRM --> UI
 ```
 
