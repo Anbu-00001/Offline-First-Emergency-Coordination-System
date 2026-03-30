@@ -325,7 +325,7 @@ Building a fully decentralized mesh system is inherently difficult. Our biggest 
 
 ### What's Next 🚀
 *   **Hardware Integration**: Extending the P2P layer over **LoRaWAN** hardware modules to cover massive geographical distances during complete cellular grid blackouts.
-*   **Drone Node Relays**: Integrating aerial drones to act as temporary high-altitude P2P mesh relay points, expanding network coverage to otherwise isolated ground units.
+*   **Drone Node Relays**: Integrating aerial drones to act as temporary high-altitude P2P mesh relay points, expanding network coverage to otherwise isolated ground units .
 
 ---
 
