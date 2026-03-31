@@ -325,7 +325,8 @@ class _JobRunner {
     final tilePath = p.join(tilesDir, '${tile.z}', '${tile.x}', '${tile.y}.png');
 
     // Check if tile already exists on disk
-    if (File(tilePath).existsSync()) {
+    final exists = await Future.microtask(() => File(tilePath).existsSync());
+    if (exists) {
       await repo.markTileSkipped(tile.id, tilePath);
       await repo.incrementJobProgress(jobId);
       return;
@@ -349,11 +350,13 @@ class _JobRunner {
 
       if (response.statusCode == 200 && response.bodyBytes.isNotEmpty) {
         // Atomic write: write to temp then rename
-        final tileFile = File(tilePath);
-        await tileFile.parent.create(recursive: true);
-        final tempFile = File('$tilePath.tmp');
-        await tempFile.writeAsBytes(response.bodyBytes, flush: true);
-        await tempFile.rename(tilePath);
+        await Future.microtask(() async {
+          final tileFile = File(tilePath);
+          await tileFile.parent.create(recursive: true);
+          final tempFile = File('$tilePath.tmp');
+          await tempFile.writeAsBytes(response.bodyBytes, flush: true);
+          await tempFile.rename(tilePath);
+        });
 
         await repo.markTileDownloaded(tile.id, tilePath);
         await repo.incrementJobProgress(jobId);
@@ -361,10 +364,12 @@ class _JobRunner {
         throw HttpException(
             'HTTP ${response.statusCode} for ${tile.z}/${tile.x}/${tile.y}');
       }
-    } catch (e) {
+    } catch (e, s) {
       final errorMsg = e.toString();
       debugPrint(
           'PrefetchService: Tile ${tile.z}/${tile.x}/${tile.y} failed: $errorMsg');
+      debugPrint('ERROR: $e');
+      debugPrint('$s');
 
       if (tile.attempts + 1 >= kMaxTileAttempts) {
         await repo.markTileFailed(tile.id, errorMsg);

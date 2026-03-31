@@ -21,11 +21,15 @@ class FallbackFileTileProvider extends TileProvider {
     final file = File(tilePath);
 
     try {
-      // Replaced blocked sync call (file.existsSync()) with try-catch fallback.
-      // Since FileImage cannot fallback to NetworkImage implicitly on error,
-      // and existsSync freezes UI, we use NetworkTileProvider directly during test mode.
-      return _networkProvider.getImage(coordinates, options);
-    } catch (e) {
+      if (file.existsSync() == true) {
+        print("Loading tile from: $tilePath");
+        return FileImage(file);
+      } else {
+        return _networkProvider.getImage(coordinates, options);
+      }
+    } catch (e, s) {
+      debugPrint("ERROR: $e");
+      debugPrint("$s");
       return _networkProvider.getImage(coordinates, options);
     }
   }

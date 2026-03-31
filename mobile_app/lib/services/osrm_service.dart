@@ -32,7 +32,7 @@ class OSRMService {
           '&annotations=false&alternatives=$alternatives';
 
       final uri = Uri.parse(uriStr);
-      print("Routing request → $uriStr");
+      print("Routing URL: $uriStr");
       print("Routing started");
       final response = await _client.get(uri).timeout(const Duration(seconds: 5));
 
@@ -41,17 +41,17 @@ class OSRMService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body) as Map<String, dynamic>;
-        final results = RouteResult.fromOsrmJsonList(data);
+        final results = await Future.microtask(() => RouteResult.fromOsrmJsonList(data));
         if (results.isNotEmpty) {
           print("Route points count → ${results.first.geometry.length}");
         }
         return results;
       } else {
-        debugPrint(
-            'OSRMService: Failed to fetch route. Status: ${response.statusCode}');
+        throw Exception("OSRM failed: HTTP ${response.statusCode}");
       }
-    } catch (e) {
-      debugPrint('OSRMService: Exception fetching route: $e');
+    } catch (e, s) {
+      debugPrint("ERROR: $e");
+      debugPrint("$s");
     }
 
     return [];

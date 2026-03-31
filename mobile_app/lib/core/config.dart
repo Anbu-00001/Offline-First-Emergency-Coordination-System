@@ -9,7 +9,7 @@ class AppConfig {
   factory AppConfig() => _instance;
   AppConfig._internal();
 
-  static const String osrmBaseUrl = "http://127.0.0.1:5000";
+  static const String osrmBaseUrl = "http://192.168.1.105:5000";
 
   final MDnsDiscovery _mDnsDiscovery = MDnsDiscovery();
 

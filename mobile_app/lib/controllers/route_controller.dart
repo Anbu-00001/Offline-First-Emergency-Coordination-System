@@ -49,65 +49,71 @@ class RouteController {
     // Clear previous route immediately
     _routeStreamController.add(null);
 
-    // 1. Fetch incidents
-    final incidents = await _incidentRepository.getAllIncidents();
+    try {
+      // 1. Fetch incidents
+      final incidents = await _incidentRepository.getAllIncidents();
 
-    // 2. Check cache first
-    final cached = _cacheService.lookup(start, end);
-    if (cached != null) {
-      debugPrint('RouteController: Cache HIT — reusing cached route');
-      debugPrint('ROUTE_EVALUATION_STARTED');
-      if (_isRouteSafe(cached.geometry, incidents)) {
-        debugPrint('SAFE_ROUTE_SELECTED');
-        _routeStreamController.add(cached);
-        return;
-      } else {
-        debugPrint('ROUTE_MARKED_UNSAFE');
-        debugPrint('Cached route unsafe, re-fetching...');
+      // 2. Check cache first
+      final cached = _cacheService.lookup(start, end);
+      if (cached != null) {
+        debugPrint('RouteController: Cache HIT — reusing cached route');
+        debugPrint('ROUTE_EVALUATION_STARTED');
+        if (_isRouteSafe(cached.geometry, incidents)) {
+          debugPrint('SAFE_ROUTE_SELECTED');
+          _routeStreamController.add(cached);
+          return;
+        } else {
+          debugPrint('ROUTE_MARKED_UNSAFE');
+          debugPrint('Cached route unsafe, re-fetching...');
+        }
       }
-    }
 
-    // 3. Fetch from RoutingService
-    debugPrint('RouteController: Fetching initial route from RoutingService');
-    final initialRoutes = await _routingService.getRoute(start, end, alternatives: false);
+      // 3. Fetch from RoutingService
+      debugPrint('RouteController: Fetching initial route from RoutingService');
+      final initialRoutes = await _routingService.getRoute(start, end, alternatives: false);
 
-    if (initialRoutes.isEmpty) {
-      _routeStreamController.add(null);
-      return;
-    }
+      if (initialRoutes.isEmpty) {
+        _routeStreamController.add(null);
+        return;
+      }
 
-    final originalRoute = initialRoutes.first;
+      final originalRoute = initialRoutes.first;
 
-    // 4. Pass route to RouteAvoidanceService
-    debugPrint('ROUTE_EVALUATION_STARTED');
-    if (_isRouteSafe(originalRoute.geometry, incidents)) {
-      // If SAFE -> emit route
-      debugPrint('SAFE_ROUTE_SELECTED');
+      // 4. Pass route to RouteAvoidanceService
+      debugPrint('ROUTE_EVALUATION_STARTED');
+      if (_isRouteSafe(originalRoute.geometry, incidents)) {
+        // If SAFE -> emit route
+        debugPrint('SAFE_ROUTE_SELECTED');
+        _cacheService.store(start, end, originalRoute);
+        _routeStreamController.add(originalRoute);
+        return;
+      }
+
+      // If UNSAFE -> request alternatives
+      debugPrint('ROUTE_MARKED_UNSAFE');
+      debugPrint('RouteController: Requesting alternatives...');
+      
+      final alternateRoutes = await _routingService.getRoute(start, end, alternatives: true);
+
+      // Evaluate each alternative
+      for (final route in alternateRoutes) {
+        if (_isRouteSafe(route.geometry, incidents)) {
+          debugPrint('SAFE_ROUTE_SELECTED');
+          _cacheService.store(start, end, route);
+          _routeStreamController.add(route);
+          return;
+        }
+      }
+
+      // If none SAFE -> fallback to original/shortest route
+      debugPrint('FALLBACK_ROUTE_USED');
       _cacheService.store(start, end, originalRoute);
       _routeStreamController.add(originalRoute);
-      return;
+    } catch (e, s) {
+      debugPrint("ERROR: $e");
+      debugPrint("$s");
+      _routeStreamController.add(null);
     }
-
-    // If UNSAFE -> request alternatives
-    debugPrint('ROUTE_MARKED_UNSAFE');
-    debugPrint('RouteController: Requesting alternatives...');
-    
-    final alternateRoutes = await _routingService.getRoute(start, end, alternatives: true);
-
-    // Evaluate each alternative
-    for (final route in alternateRoutes) {
-      if (_isRouteSafe(route.geometry, incidents)) {
-        debugPrint('SAFE_ROUTE_SELECTED');
-        _cacheService.store(start, end, route);
-        _routeStreamController.add(route);
-        return;
-      }
-    }
-
-    // If none SAFE -> fallback to original/shortest route
-    debugPrint('FALLBACK_ROUTE_USED');
-    _cacheService.store(start, end, originalRoute);
-    _routeStreamController.add(originalRoute);
   }
 
   void clearRoute() {

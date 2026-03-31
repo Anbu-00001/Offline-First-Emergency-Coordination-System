@@ -61,6 +61,7 @@ class _MapScreenState extends State<MapScreen> {
   final MapController _mapController = MapController();
   LatLng? _currentLocation;
   Timer? _locationTimer;
+  List<LatLng> routePoints = [];
 
   /// Cluster radius in degrees — adjusts with zoom level.
   double get _clusterRadiusDeg {
@@ -82,6 +83,24 @@ class _MapScreenState extends State<MapScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initTileUrl();
       _startLocationUpdates();
+      
+      context.read<RouteController>().routeStream.listen((routeResult) {
+        if (!mounted) return;
+        final parsedPoints = routeResult?.geometry ?? [];
+        setState(() {
+          routePoints = parsedPoints;
+        });
+
+        if (routePoints.length >= 2) {
+          final bounds = LatLngBounds.fromPoints(routePoints);
+          _mapController.fitCamera(
+            CameraFit.bounds(
+              bounds: bounds,
+              padding: const EdgeInsets.all(40),
+            ),
+          );
+        }
+      });
     });
   }
 
@@ -220,6 +239,7 @@ class _MapScreenState extends State<MapScreen> {
   }
 
   void _handleIncidentTap(models.Incident incident) async {
+    print("Incident tapped");
     final responderState = context.read<ResponderStateService>().currentState;
     if (responderState == ResponderState.active) {
       final locService = context.read<LocationService>();
@@ -782,37 +802,15 @@ class _MapScreenState extends State<MapScreen> {
                             return const SizedBox.shrink();
                           },
                         ),
-                        StreamBuilder<RouteResult?>(
-                          stream: context.read<RouteController>().routeStream,
-                          builder: (context, snapshot) {
-                            final routeResult = snapshot.data;
-                            final routePoints = routeResult?.geometry ?? [];
-
-                            // Auto-fit camera when a new route arrives
-                            if (routeResult != null && routePoints.length >= 2) {
-                              WidgetsBinding.instance.addPostFrameCallback((_) {
-                                final bounds = LatLngBounds.fromPoints(routePoints);
-                                _mapController.fitCamera(
-                                  CameraFit.bounds(
-                                    bounds: bounds,
-                                    padding: const EdgeInsets.all(40),
-                                  ),
-                                );
-                                if (mounted) setState(() {}); // Force UI update
-                              });
-                            }
-
-                            return PolylineLayer(
-                              polylines: [
-                                if (routePoints.isNotEmpty)
-                                  Polyline(
-                                    points: routePoints,
-                                    strokeWidth: 5,
-                                    color: Colors.blue,
-                                  ),
-                              ],
-                            );
-                          },
+                        PolylineLayer(
+                          polylines: [
+                            if (routePoints.isNotEmpty)
+                              Polyline(
+                                points: routePoints,
+                                strokeWidth: 5,
+                                color: Colors.blue,
+                              ),
+                          ],
                         ),
                         MarkerLayer(
                           markers: _buildMarkers(),
