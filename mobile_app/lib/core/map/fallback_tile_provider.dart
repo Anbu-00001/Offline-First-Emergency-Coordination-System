@@ -22,7 +22,7 @@ class FallbackFileTileProvider extends TileProvider {
 
     try {
       if (file.existsSync() == true) {
-        print("Loading tile from: $tilePath");
+        print("Tile path: $tilePath");
         return FileImage(file);
       } else {
         return _networkProvider.getImage(coordinates, options);

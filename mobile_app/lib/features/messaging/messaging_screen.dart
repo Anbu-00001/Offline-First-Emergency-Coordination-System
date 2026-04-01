@@ -90,6 +90,7 @@ class _MessagingScreenState extends State<MessagingScreen> {
                 Expanded(
                   child: TextField(
                     controller: _textController,
+                    autofocus: false,
                     decoration: const InputDecoration(hintText: 'Enter message...'),
                   ),
                 ),
@@ -97,11 +98,15 @@ class _MessagingScreenState extends State<MessagingScreen> {
                   icon: const Icon(Icons.send),
                   onPressed: () {
                     if (_textController.text.isNotEmpty) {
-                      ws.sendMessage({
-                        'text': _textController.text,
-                        'type': 'chat',
-                        'timestamp': DateTime.now().toIso8601String(),
-                      });
+                      try {
+                        ws.sendMessage({
+                          'text': _textController.text,
+                          'type': 'chat',
+                          'timestamp': DateTime.now().toIso8601String(),
+                        });
+                      } catch (e) {
+                        debugPrint("P2P error: $e");
+                      }
                       _textController.clear();
                     }
                   },

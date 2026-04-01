@@ -42,7 +42,9 @@ void main() async {
   final db = AppDatabase();
   final p2pService = P2PService(hostUrl: baseUrl);
   // Start the background connection to the local node
-  // p2pService.connect();
+  Future(() async {
+    p2pService.connect();
+  });
   final wsService = WsService(baseUrl, authService, db);
   final mapService = MapService();
 
@@ -53,7 +55,9 @@ void main() async {
     repo: tilesRepo,
     mapService: mapService,
   );
-  // tilePrefetchService.start();
+  Future(() async {
+    await prefetchService.resumePendingJobs();
+  });
   final prefetchController = PrefetchController(prefetchService);
 
   // 4. Responder System

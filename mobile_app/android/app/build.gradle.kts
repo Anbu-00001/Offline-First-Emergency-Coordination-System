@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.example.mobile_app"
-    compileSdk = 36
+    compileSdk = 34
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
@@ -41,4 +41,11 @@ android {
 
 flutter {
     source = "../.."
+}
+
+configurations.all {
+    resolutionStrategy {
+        force("androidx.core:core-ktx:1.12.0")
+        force("androidx.core:core:1.12.0")
+    }
 }

@@ -32,6 +32,7 @@ class OSRMService {
           '&annotations=false&alternatives=$alternatives';
 
       final uri = Uri.parse(uriStr);
+      print("Calling OSRM...");
       print("Routing URL: $uriStr");
       print("Routing started");
       final response = await _client.get(uri).timeout(const Duration(seconds: 5));
