@@ -2,8 +2,8 @@ import 'dart:io';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_map/flutter_map.dart';
 
-class FileTileProvider extends TileProvider {
-  FileTileProvider();
+class LocalFileTileProvider extends TileProvider {
+  LocalFileTileProvider();
 
   @override
   ImageProvider getImage(TileCoordinates coordinates, TileLayer options) {

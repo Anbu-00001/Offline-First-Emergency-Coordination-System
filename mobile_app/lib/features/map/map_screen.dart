@@ -771,7 +771,7 @@ class _MapScreenState extends State<MapScreen> {
                           urlTemplate: _tilesDir != null ? '$_tilesDir/{z}/{x}/{y}.png' : _tileUrl!,
                           userAgentPackageName: 'org.openrescue.mobile',
                           maxZoom: 19,
-                          tileProvider: FileTileProvider(),
+                          tileProvider: LocalFileTileProvider(),
                         ),
                         StreamBuilder<ResponderState>(
                           stream: context.read<ResponderStateService>().stateStream,
